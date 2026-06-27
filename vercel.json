@@ -1,6 +1,7 @@
 {
   "buildCommand": "cd ui && npm install && npm run build",
   "outputDirectory": "ui/dist",
+  "installCommand": "pip install --break-system-packages -r requirements.txt",
   "framework": null,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.py" }

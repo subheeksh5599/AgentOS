@@ -10,7 +10,7 @@ from threading import RLock
 
 from core.models import NodeStatus, NodeType, StorageNode, StoragePool
 
-DATA_DIR = Path(os.environ.get("AGENTOS_DATA_DIR", Path(__file__).parent.parent / "data"))
+DATA_DIR = Path(os.environ.get("AGENTOS_DATA_DIR", "/tmp/agentos"))
 DATA_FILE = DATA_DIR / "state.json"
 
 

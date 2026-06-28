@@ -3,48 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0d1317" />
-  <link rel="preconnect" href="http://fonts.googleapis.com" />
-  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#05070d" />
+  <meta name="description" content="AgentOS — an autonomous cloud operations platform. Four agents manage storage, security, and monitoring across a global grid, recording every action to a hash-chained ledger." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
-  <title>Nimbus Grid</title>
+  <title>AgentOS — Autonomous Cloud Grid</title>
 </head>
 <body>
 
-  <!-- Parallax depth layers -->
+  <!-- scroll progress -->
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- ambient background layers -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
   <div class="parallax-layer layer-deep" aria-hidden="true"></div>
   <div class="parallax-layer layer-mid" aria-hidden="true"></div>
-  <div class="parallax-layer layer-shallow" aria-hidden="true"></div>
+
+  <!-- ── Nav ── -->
+  <header class="site-header" id="site-header">
+    <a href="#top" class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Agent<b>OS</b></span>
+    </a>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#grid">Grid</a>
+      <a href="#technology">Technology</a>
+      <a href="#operations">Operations</a>
+      <a href="#plans">Plans</a>
+    </nav>
+    <div class="header-right">
+      <span class="status-pill" id="nav-status">
+        <span class="status-dot"></span>
+        <span id="nav-status-text">connecting</span>
+      </span>
+      <a href="#plans" class="header-cta">Deploy a grid</a>
+    </div>
+  </header>
 
   <!-- ── Hero ── -->
-  <section class="hero">
-    <canvas class="shader-canvas"></canvas>
-    <div class="shader-fallback"></div>
+  <section class="hero" id="top">
+    <canvas class="shader-canvas" aria-hidden="true"></canvas>
+    <div class="shader-fallback" aria-hidden="true"></div>
+    <div class="hero-vignette" aria-hidden="true"></div>
 
-    <header class="site-header">
-      <div class="brand">NIMBUS GRID</div>
-      <div class="header-right">
-        <nav class="primary-nav">
-          <a href="#technology">Technology</a>
-          <a href="#security">Security</a>
-          <a href="#capacity">Capacity</a>
-          <a href="#operations">Operations</a>
-        </nav>
-        <a href="#plans" class="header-cta">Get Started</a>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="eyebrow reveal-up">
+          <span class="eyebrow-dot"></span>
+          Autonomous cloud operations
+        </div>
+        <h1 class="reveal-up">
+          The grid that <span class="grad">runs itself.</span>
+        </h1>
+        <p class="hero-lede reveal-up">
+          AgentOS deploys four autonomous agents across a global storage grid. They
+          provision capacity, audit encryption, watch every node, and commit each
+          action to a tamper-proof hash chain — in real time, with no one at the wheel.
+        </p>
+        <div class="hero-actions reveal-up">
+          <a href="#grid" class="btn btn-primary" data-magnetic>
+            Watch the grid live
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </a>
+          <a href="#technology" class="btn btn-ghost">How it works</a>
+        </div>
+        <dl class="hero-metrics reveal-up">
+          <div>
+            <dt>nodes online</dt>
+            <dd id="hero-nodes">12<span>/12</span></dd>
+          </div>
+          <div>
+            <dt>regions</dt>
+            <dd id="hero-regions">3</dd>
+          </div>
+          <div>
+            <dt>ledger</dt>
+            <dd class="dd-chain"><span class="chain-dot"></span><span id="hero-chain">verified</span></dd>
+          </div>
+        </dl>
       </div>
-    </header>
 
-    <div class="hero-grid">
-      <div class="console-card reveal-up">
+      <div class="console-card reveal-scale">
         <div class="console-tabs" role="tablist">
           <button class="console-tab is-active" role="tab" aria-selected="true">CLI</button>
           <button class="console-tab" role="tab" aria-selected="false">API</button>
-          <button class="console-tab" role="tab" aria-selected="false">Console</button>
+          <button class="console-tab" role="tab" aria-selected="false">Provision</button>
           <span class="tab-spacer"></span>
-          <div class="window-controls">
-            <div class="wc-square"></div>
-            <div class="wc-bar"></div>
+          <div class="window-controls" aria-hidden="true">
+            <span class="wc-dot"></span><span class="wc-dot"></span><span class="wc-dot"></span>
           </div>
         </div>
         <div class="console-panes">
@@ -55,93 +104,164 @@
             </div>
             <form class="console-input-form" id="console-form" autocomplete="off">
               <span class="prompt">$</span>
-              <input type="text" class="console-command-input" id="console-input" placeholder="type a command (help, status, store, scan)…" />
+              <input type="text" class="console-command-input" id="console-input" placeholder="try: status · store 500 · scan · nodes · help" aria-label="AgentOS command" />
             </form>
           </div>
           <div class="console-pane" data-pane="1">
-            <pre class="console-text"><span class="prompt">POST</span> /v1/storage/pools
+            <pre class="console-text"><span class="prompt">POST</span> /api/pools
 {
-  "<span class="val">name</span>": "<span class="val">web-db-test</span>",
-  "<span class="val">tier</span>": "<span class="val">encrypted-fast</span>",
-  "<span class="val">quota</span>": "<span class="val">8 TiB</span>"
+  "<span class="key">name</span>": <span class="val">"web-db-prod"</span>,
+  "<span class="key">region</span>": <span class="val">"eu-west-1"</span>,
+  "<span class="key">tier</span>": <span class="val">"encrypted-fast"</span>,
+  "<span class="key">capacity_tb</span>": <span class="num">128</span>
 }
-<span class="output" data-typed>202 accepted: provisioning policy attached</span></pre>
+<span class="output" data-typed>202 accepted — StorageAgent attached provisioning policy</span></pre>
           </div>
           <div class="console-pane" data-pane="2">
             <div class="console-form">
-              <label>Instance name</label>
-              <div class="console-input" data-typed>web-db-test</div>
-              <label>Image</label>
-              <div class="console-input is-select">ubuntu-24.04-noble</div>
+              <label>Pool name</label>
+              <div class="console-input" data-typed>web-db-prod</div>
+              <label>Region</label>
+              <div class="console-input is-select">eu-west-1</div>
               <div class="console-row">
                 <div>
-                  <label>Memory</label>
-                  <div class="console-input is-select">8 GiB</div>
+                  <label>Tier</label>
+                  <div class="console-input is-select">encrypted-fast</div>
                 </div>
                 <div>
-                  <label>CPUs</label>
-                  <div class="console-input is-select">2</div>
+                  <label>Capacity</label>
+                  <div class="console-input is-select">128 TiB</div>
                 </div>
               </div>
+              <button class="console-provision" type="button">Provision pool</button>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="hero-copy reveal-up">
-        <h1>Cloud space that scales with your business systems.</h1>
-        <p>Nimbus Grid sells secure cloud storage capacity for companies that need fast onboarding, predictable throughput, encrypted collaboration, and modern data residency controls.</p>
-      </div>
     </div>
 
-    <div class="scroll-hint" aria-hidden="true">
+    <a href="#grid" class="scroll-hint" aria-label="Scroll to grid">
       <span class="scroll-hint-line"></span>
+    </a>
+  </section>
+
+  <!-- ── Live Grid topology ── -->
+  <section class="grid-section" id="grid">
+    <div class="section-head">
+      <div class="section-label reveal-up">Live topology</div>
+      <h2 class="section-title reveal-up">A grid you can watch think.</h2>
+      <p class="section-sub reveal-up">
+        Every node below is a real storage node served by the AgentOS backend. Agents
+        ping nodes, route packets between regions, and commit transactions — the moment
+        it happens here, it happens on the wire.
+      </p>
+    </div>
+
+    <div class="grid-stage reveal-up">
+      <canvas class="grid-canvas" id="grid-canvas"></canvas>
+      <div class="grid-legend">
+        <span><i class="lg lg-storage"></i> storage</span>
+        <span><i class="lg lg-gateway"></i> gateway</span>
+        <span><i class="lg lg-packet"></i> live packet</span>
+      </div>
+      <aside class="grid-readout">
+        <div class="readout-row">
+          <span class="readout-key">grid load</span>
+          <span class="readout-val" id="ro-load">—</span>
+        </div>
+        <div class="readout-meter"><i id="ro-load-bar"></i></div>
+        <div class="readout-row">
+          <span class="readout-key">capacity</span>
+          <span class="readout-val" id="ro-cap">—</span>
+        </div>
+        <div class="readout-row">
+          <span class="readout-key">p99 latency</span>
+          <span class="readout-val" id="ro-lat">12 ms</span>
+        </div>
+        <div class="readout-row">
+          <span class="readout-key">throughput</span>
+          <span class="readout-val" id="ro-tput">— Mbps</span>
+        </div>
+        <div class="readout-divider"></div>
+        <div class="readout-agents" id="ro-agents">
+          <div class="ag-chip" data-agent="StorageAgent"><span></span>Storage</div>
+          <div class="ag-chip" data-agent="SecurityAgent"><span></span>Security</div>
+          <div class="ag-chip" data-agent="MonitorAgent"><span></span>Monitor</div>
+          <div class="ag-chip" data-agent="OpsAgent"><span></span>Ops</div>
+        </div>
+      </aside>
     </div>
   </section>
 
   <!-- ── Features ── -->
   <section class="features" id="technology">
-    <div class="section-label reveal-up">Technology</div>
-    <h2 class="section-title reveal-up">Storage engineered for production scale.</h2>
+    <div class="section-head">
+      <div class="section-label reveal-up">Technology</div>
+      <h2 class="section-title reveal-up">Engineered for production scale.</h2>
+    </div>
     <div class="features-grid">
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25C9;</div>
-        <h3>Encrypted at rest and in transit</h3>
-        <p>Every byte is encrypted with AES-256-GCM before it touches disk. Keys rotate automatically every 72 hours with zero-downtime handoff.</p>
-        <button class="feature-popup-trigger" data-popup="encryption">Learn about encryption →</button>
-      </div>
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25CB;</div>
-        <h3>Multi-region data residency</h3>
-        <p>Pin storage pools to specific geographic regions. Nimbus Grid enforces residency at the control-plane level — your data never leaves the jurisdictions you choose.</p>
-        <button class="feature-popup-trigger" data-popup="residency">Learn about residency →</button>
-      </div>
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25CC;</div>
-        <h3>Predictable throughput SLAs</h3>
-        <p>Guaranteed IOPS and bandwidth per storage pool. No noisy neighbours — each pool gets dedicated provisioned capacity with burst headroom.</p>
-        <button class="feature-popup-trigger" data-popup="throughput">Learn about throughput →</button>
-      </div>
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25CE;</div>
-        <h3>Immutable audit trail</h3>
-        <p>Every read, write, and permission change is logged to an append-only ledger. Export audit trails to your SIEM in real time over streaming gRPC.</p>
-        <button class="feature-popup-trigger" data-popup="audit">Learn about audit →</button>
-      </div>
+      <article class="feature-card reveal-up" data-spotlight>
+        <div class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M9 12l2.2 2.2L15.5 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Encrypted end to end</h3>
+        <p>Every byte is sealed with AES-256-GCM before it touches disk. Keys rotate automatically every 72 hours with zero-downtime handoff.</p>
+        <button class="feature-link" data-popup="encryption">Inside the crypto <span aria-hidden="true">→</span></button>
+      </article>
+      <article class="feature-card reveal-up" data-spotlight>
+        <div class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" stroke="currentColor" stroke-width="1.4"/></svg>
+        </div>
+        <h3>Multi-region residency</h3>
+        <p>Pin pools to specific geographies. AgentOS enforces residency at the control plane — your data never leaves the jurisdictions you choose.</p>
+        <button class="feature-link" data-popup="residency">How residency works <span aria-hidden="true">→</span></button>
+      </article>
+      <article class="feature-card reveal-up" data-spotlight>
+        <div class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 16l4-5 3 3 4-7 4 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Provisioned throughput</h3>
+        <p>Guaranteed IOPS and bandwidth per pool. No noisy neighbours — each pool gets reserved capacity with 50% burst headroom.</p>
+        <button class="feature-link" data-popup="throughput">See the SLA <span aria-hidden="true">→</span></button>
+      </article>
+      <article class="feature-card reveal-up" data-spotlight>
+        <div class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Tamper-proof ledger</h3>
+        <p>Every read, write, and permission change is hash-chained into an append-only ledger. Break one link and the whole chain rejects it.</p>
+        <button class="feature-link" data-popup="audit">Verify the chain <span aria-hidden="true">→</span></button>
+      </article>
     </div>
   </section>
 
-  <!-- ── Live Agent Feed ── -->
+  <!-- ── Agents strip ── -->
+  <section class="agents-strip">
+    <div class="section-head">
+      <div class="section-label reveal-up">The operators</div>
+      <h2 class="section-title reveal-up">Four agents. One autonomous grid.</h2>
+    </div>
+    <div class="agents-grid">
+      <div class="agent-cell reveal-up"><span class="agent-glyph">◈</span><h4>StorageAgent</h4><p>Provisions pools, allocates blocks, rebalances capacity across regions.</p></div>
+      <div class="agent-cell reveal-up"><span class="agent-glyph">⬡</span><h4>SecurityAgent</h4><p>Audits encryption, runs threat scans, enforces residency policy.</p></div>
+      <div class="agent-cell reveal-up"><span class="agent-glyph">◎</span><h4>MonitorAgent</h4><p>Tracks node health, latency, and throughput; raises alerts on drift.</p></div>
+      <div class="agent-cell reveal-up"><span class="agent-glyph">▰</span><h4>OpsAgent</h4><p>Bridges the CLI, executes transactions, and seals them into the ledger.</p></div>
+    </div>
+  </section>
+
+  <!-- ── Live ops feed ── -->
   <section class="agent-feed" id="operations">
-    <div class="section-label reveal-up">Live Operations</div>
-    <h2 class="section-title reveal-up">AgentOS real-time event stream.</h2>
+    <div class="section-head">
+      <div class="section-label reveal-up">Live operations</div>
+      <h2 class="section-title reveal-up">The event stream, unfiltered.</h2>
+    </div>
     <div class="feed-container reveal-up">
       <div class="feed-header">
         <span class="feed-status" id="feed-status">
           <span class="feed-dot"></span>
           <span id="feed-status-text">Connecting…</span>
         </span>
-        <span class="feed-meta" id="feed-meta">AgentOS v0.1</span>
+        <span class="feed-meta" id="feed-meta">grid-ops · room</span>
       </div>
       <div class="feed-log" id="feed-log">
         <div class="feed-entry feed-placeholder">Awaiting agent connection…</div>
@@ -154,15 +274,15 @@
     <div class="stats-grid reveal-up">
       <div class="stat-item">
         <div class="stat-value" data-count="14">0</div>
-        <div class="stat-unit">regions</div>
+        <div class="stat-unit">regions available</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" data-count="99.99">0</div>
+        <div class="stat-value" data-count="99.99" data-decimals="2">0</div>
         <div class="stat-unit">% uptime SLA</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" data-count="8.4">0</div>
-        <div class="stat-unit">exabytes under management</div>
+        <div class="stat-value" data-count="8.4" data-decimals="1" data-suffix="">0</div>
+        <div class="stat-unit">exabytes managed</div>
       </div>
       <div class="stat-item">
         <div class="stat-value" data-count="12">0</div>
@@ -171,12 +291,14 @@
     </div>
   </section>
 
-  <!-- ── Tiers / Plans ── -->
+  <!-- ── Plans ── -->
   <section class="plans" id="plans">
-    <div class="section-label reveal-up">Plans</div>
-    <h2 class="section-title reveal-up">One pricing model. No surprises.</h2>
+    <div class="section-head">
+      <div class="section-label reveal-up">Plans</div>
+      <h2 class="section-title reveal-up">One pricing model. No surprises.</h2>
+    </div>
     <div class="plans-grid">
-      <div class="plan-card reveal-up">
+      <article class="plan-card reveal-up">
         <div class="plan-header">
           <div class="plan-name">Developer</div>
           <div class="plan-price">$0<span class="plan-period">/mo</span></div>
@@ -188,8 +310,8 @@
           <li>7-day audit retention</li>
         </ul>
         <a href="#" class="plan-cta">Start free</a>
-      </div>
-      <div class="plan-card plan-featured reveal-up">
+      </article>
+      <article class="plan-card plan-featured reveal-up">
         <div class="plan-badge">Most popular</div>
         <div class="plan-header">
           <div class="plan-name">Production</div>
@@ -203,9 +325,9 @@
           <li>SSO and SAML</li>
           <li>Provisioned IOPS</li>
         </ul>
-        <a href="#" class="plan-cta">Start trial</a>
-      </div>
-      <div class="plan-card reveal-up">
+        <a href="#" class="plan-cta plan-cta-primary">Start trial</a>
+      </article>
+      <article class="plan-card reveal-up">
         <div class="plan-header">
           <div class="plan-name">Enterprise</div>
           <div class="plan-price">Custom</div>
@@ -216,11 +338,10 @@
           <li>Dedicated support engineer</li>
           <li>Unlimited audit retention</li>
           <li>On-premise gateway</li>
-          <li>Custom encryption keys</li>
-          <li>99.99% uptime SLA</li>
+          <li>Bring-your-own-key encryption</li>
         </ul>
         <button class="plan-cta contact-trigger" data-popup="contact">Contact sales</button>
-      </div>
+      </article>
     </div>
   </section>
 
@@ -228,15 +349,22 @@
   <footer class="site-footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="brand" style="margin-bottom:14px">NIMBUS GRID</div>
-        <p style="color:var(--muted);font-size:13px;max-width:240px">Secure cloud storage capacity for teams that ship.</p>
+        <a href="#top" class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Agent<b>OS</b></span></a>
+        <p>An autonomous cloud grid that provisions, secures, and audits itself.</p>
       </div>
       <div class="footer-col">
         <div class="footer-label">Product</div>
-        <a href="#">Technology</a>
-        <a href="#">Security</a>
-        <a href="#">Plans</a>
-        <a href="#">Changelog</a>
+        <a href="#technology">Technology</a>
+        <a href="#grid">Live grid</a>
+        <a href="#plans">Plans</a>
+        <a href="#operations">Operations</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-label">Developers</div>
+        <a href="#">Documentation</a>
+        <a href="#">API reference</a>
+        <a href="#">CLI guide</a>
+        <a href="#">Status</a>
       </div>
       <div class="footer-col">
         <div class="footer-label">Company</div>
@@ -245,16 +373,10 @@
         <a href="#">Careers</a>
         <a href="#">Legal</a>
       </div>
-      <div class="footer-col">
-        <div class="footer-label">Developers</div>
-        <a href="#">Documentation</a>
-        <a href="#">API Reference</a>
-        <a href="#">CLI Guide</a>
-        <a href="#">Status</a>
-      </div>
     </div>
     <div class="footer-bottom">
-      <span>&copy; 2026 Nimbus Grid. All rights reserved.</span>
+      <span>&copy; 2026 AgentOS · Nimbus Grid</span>
+      <span class="footer-credit"><span class="yeti" aria-hidden="true">❄</span> Built for the Lo-Fi Yeti Hackathon</span>
     </div>
   </footer>
 

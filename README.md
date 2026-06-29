@@ -1,72 +1,81 @@
-# AgentOS — OS for On-Chain AI Agents
+<div align="center">
 
-Move-based framework for deploying autonomous AI agents with Sui wallets, verifiable execution, and programmable guardrails.
+# AgentOS
 
-## Stack
+**Move framework for autonomous AI agents on Sui.**
 
-| Layer | What |
-|-------|------|
-| Contracts | Sui Move (7 modules) |
-| Identity | zkLogin (Google OAuth → Sui address) |
-| Execution | DeepBook Spot / Margin / Predict |
-| Verifiability | Walrus (logs, config, model params) |
-| Encryption | Seal (agent private keys at rest) |
-| Gas | Sponsored TXs (gasless agent actions) |
-| Atomicity | Programmable Transaction Blocks |
-| Payments | Google AP2 (agent-to-agent) |
-| Frontend | vanilla HTML/CSS/JS, Vite |
-| Deploy | Vercel static + serverless API |
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+[![Sui](https://img.shields.io/badge/Sui-Testnet-4da8ff)](https://sui.io)
+[![Language](https://img.shields.io/badge/Move-%E2%9C%93-blue)](https://sui.io/move)
+[![LLM](https://img.shields.io/badge/Groq-Llama%203.3%2070B-orange)](https://groq.com)
+[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20%2B%20Vite-informational)](https://vite.dev)
+[![Runtime](https://img.shields.io/badge/Runtime-Python%203.12%2B-yellow)](https://python.org)
 
-## Move Contracts
+</div>
+
+---
+
+Programmable on-chain agents with Sui wallets, verifiable execution logs, and configurable guardrails. Write a strategy in Move, deploy it via a factory contract, and let the off-chain runtime handle LLM reasoning, chain-state polling, and transaction submission. Every decision is logged to Walrus as a content-addressed blob, making the full agent lifecycle auditable without trusting a centralized executor.
+
+## Architecture
+
+```
+zkLogin identity ──→ Agent Factory (PTB) ──→ Agent Wallet (guardrails)
+                                     │
+                                     ├── Agent Registry (on-chain index)
+                                     ├── Action Log (Walrus blobs)
+                                     │
+Off-chain runtime:
+  Sui RPC loop ──→ Groq LLM reasoning ──→ Guardrail validation ──→ Sponsored TX
+                                                              ──→ Walrus upload
+                                                              ──→ SSE stream to dashboard
+```
+
+## Sui primitives
+
+| Primitive | Role |
+|-----------|------|
+| **Walrus** | Content-addressed blobs for agent decisions, execution traces, and model configuration. Immutable audit trail. |
+| **Seal** | Encrypted agent state and private keys at rest. Agents hold funds without exposing signing material on-chain. |
+| **DeepBook** | Unified liquidity across Spot, Margin, and Predict. Agents trade through a single interface rather than routing across fragmented venues. |
+| **zkLogin** | Google OAuth derives a Sui address. Agent identity is bound to a real user, not a detached keypair. |
+| **Sponsored TXs** | Gas station pattern for autonomous execution. Agents do not need to hold SUI for transaction fees. |
+| **PTBs** | Multi-step strategies execute atomically in one block. Swap, stake, and log in a single transaction. |
+| **Google AP2** | Agent-to-agent payment primitives. Sui is Google's launch partner for the AP2 protocol. |
+
+## Move modules
 
 ```
 move/sources/
-├── agent_registry.move      Agent discovery & metadata
-├── agent_wallet.move        Wallet with programmable guardrails
-├── agent_factory.move       1-click deploy in a PTB
-├── action_log.move          Verifiable audit trail → Walrus
+├── agent_registry.move        Agent directory: registration, discovery, owner binding
+├── agent_wallet.move          Custody with programmable constraints per agent
+├── agent_factory.move         Single-PTB deploy: wallet + registry + funding + guardrails
+├── action_log.move            Append-only ledger with Walrus blob references
 └── examples/
-    ├── yield_agent.move     DeepBook LP optimization
-    ├── trader_agent.move    Spot + Margin arbitrage
-    └── prediction_agent.move   DeepBook Predict markets
+    ├── yield_agent.move       Pool scanning, APR threshold comparison, rebalancing
+    ├── trader_agent.move      Order book arbitrage, stop-loss/take-profit triggers
+    └── prediction_agent.move  Kelly criterion sizing, edge detection, confidence gating
 ```
 
-## 3 Example Agents
+## Off-chain runtime
 
-**Yield Agent** — scans DeepBook pools for best APR, rebalances daily, auto-compounds.
+```
+runtime/
+├── llm.py              Groq client — one key drives three agents via distinct prompts
+├── sui_client.py       Sui testnet JSON-RPC: pool state, order books, predict markets
+├── walrus_client.py    Blob upload with content-addressed hashing
+├── event_bus.py        Async pub/sub with SSE fan-out for live dashboard
+├── api.py              FastAPI SSE endpoint for streaming agent events
+├── agents/
+│   ├── yield_agent.py    45s poll loop — fetch state → Groq → validate → execute
+│   ├── trader_agent.py   30s poll loop — order book analysis with profit threshold
+│   └── prediction_agent.py  60s poll loop — market scoring with confidence floor
+└── main.py             uvicorn entry point, agent lifecycle management
+```
 
-**Trader Agent** — arbitrage across Spot + Margin, stop-loss/take-profit, pair whitelisting.
+Agents poll Sui testnet for live chain state, pass structured context to Groq (Llama 3.3 70B via `response_format: json_object`), validate the returned decision against on-chain guardrails, and route valid actions through the sponsored transaction pipeline. Every step — decision, validation, execution — is logged to Walrus and streamed to the dashboard over SSE.
 
-**Prediction Agent** — trades DeepBook Predict markets using Kelly criterion sizing, edge detection.
-
-## 30-Second Demo
-
-1. Login via Google (zkLogin)
-2. Deploy a Yield Agent with 1 click
-3. Agent finds best DeepBook yields, rebalances daily
-4. All actions verifiable on Walrus
-
-## Why It Wins
-
-1. Dev tooling × AI agents — sell shovels in the fastest-growing category
-2. Nobody's built the agent OS yet. First mover.
-3. Naturally viral — developers become evangelists
-4. 3 demo-ready agents covering Spot, Margin, Predict
-5. First to build on DeepBook Predict (launched May 2026)
-
-## Sui Primitives Used
-
-| Primitive | Use |
-|-----------|-----|
-| Walrus | Verifiable agent memory, logs, model configs |
-| Seal | Encrypted agent state + private keys |
-| DeepBook | Spot, Margin, Predict — shared liquidity |
-| zkLogin | Agent identity tied to real users |
-| Sponsored TXs | Gasless autonomous agent actions |
-| PTBs | Atomic multi-step strategies |
-| Google AP2 | Agent-to-agent payments |
-
-## Run Locally
+## Run locally
 
 ```bash
 cd ui && npm install && npm run build && cd ..
@@ -75,12 +84,17 @@ source .venv/bin/activate
 python -m uvicorn main:app --host 0.0.0.0 --port 8420
 ```
 
-## Deploy
+Requires a Groq API key in `runtime/.env`. The runtime needs a persistent process (agents run as async loops in the uvicorn lifespan). Vercel deploys the static frontend and a subset of the API as serverless functions; the full agent loop requires a long-lived process.
 
-```bash
-vercel --prod
-```
+## Pages
 
-Live at [agentos-sepia.vercel.app](https://agentos-sepia.vercel.app)
+| Path | Description |
+|------|-------------|
+| `/` | Landing — strategy overview, pipeline, deploy panel |
+| `/dashboard.html` | Live SSE stream of agent decisions, DeepBook market data |
+| `/api.html` | REST + SSE endpoint reference |
+| `/contracts.html` | Move module documentation with function signatures |
 
-Built for Sui Agentathon 2026.
+## License
+
+Apache 2.0

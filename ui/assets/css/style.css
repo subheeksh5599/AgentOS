@@ -110,9 +110,10 @@ nav{
 }
 
 #center h1{
-    font-size: 10vw;
+    font-size: clamp(60px, 8.5vw, 160px);
     text-align: right;
-    line-height: 8.5vw;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
 }
 
 #page1 video{
@@ -804,8 +805,8 @@ nav{
     }
     #right h1{
         text-align: right;
-        line-height: 8vw;
-        font-size: 9vw;
+        line-height: 0.85;
+        font-size: clamp(40px, 9vw, 70px);
         padding-top: 10vh;
     }
     #hero-shape{

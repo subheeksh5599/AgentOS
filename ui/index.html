@@ -78,6 +78,14 @@
             .feed-card { padding: 14px; }
             .fc-summary { font-size: 12px; }
         }
+        .nav-wallet-btn {
+            padding: 8px 16px; border-radius: 50px; border: 1px solid var(--accent);
+            background: transparent; color: var(--text); font-family: neu; font-size: 13px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .nav-wallet-btn:hover { background: var(--accent); color: #fff; }
+        .nav-wallet-btn.connected { background: #10B981; border-color: #10B981; color: #fff; }
+        @media(max-width:900px) { .nav-wallet-btn { display: none; } }
     </style>
 </head>
 <body>
@@ -106,6 +114,9 @@
                     <h4><a href="#agents">Agents</a></h4>
                     <h4><a href="#live">Live Feed</a></h4>
                     <h4><a href="#stack">Stack</a></h4>
+                    <h4><a href="deploy.html" style="background:var(--accent);color:#fff!important;border-color:var(--accent)">Deploy</a></h4>
+                    <h4><a href="dashboard.html">Dashboard</a></h4>
+                    <button class="nav-wallet-btn" id="walletBtn" onclick="toggleWallet()">Connect</button>
                 </div>
                 <div id="menu"><h4>Menu</h4></div>
             </nav>
@@ -233,5 +244,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="assets/js/studio.js"></script>
+    <script>
+        var walletBtn = document.getElementById("walletBtn");
+        var walletAddr = "";
+        function toggleWallet() {
+            if (walletAddr) { walletAddr = ""; updateW(); return; }
+            if (window.suiWallet) {
+                window.suiWallet.requestAccounts().then(function(a) {
+                    if (a && a.length) { walletAddr = a[0]; updateW(); }
+                }).catch(function() { alert("Install Sui Wallet extension"); });
+            } else {
+                alert("Sui Wallet not detected. Install from chrome web store.\nYou can still deploy agents — they run on the server.");
+            }
+        }
+        function updateW() {
+            if (walletAddr) {
+                walletBtn.textContent = walletAddr.substring(0,4) + ".." + walletAddr.slice(-4);
+                walletBtn.classList.add("connected");
+            } else { walletBtn.textContent = "Connect"; walletBtn.classList.remove("connected"); }
+        }
+        setTimeout(function() {
+            if (window.suiWallet) window.suiWallet.getAccounts().then(function(a) {
+                if (a && a.length) { walletAddr = a[0]; updateW(); }
+            }).catch(function() {});
+        }, 800);
+    </script>
 </body>
 </html>

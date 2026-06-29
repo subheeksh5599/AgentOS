@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Agent — AgentOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/lenis@latest/dist/lenis.min.js"></script>
+    <style>
+        :root { --bg: #EFEAE3; --accent: #E63A1B; --text: #1a1a1a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Space Grotesk', -apple-system, sans-serif; min-height: 100vh; }
+        a { color: inherit; text-decoration: none; }
+
+        nav { padding: 20px 4vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .nav-l { font-weight: 900; font-size: 22px; }
+        .nav-l span { color: var(--accent); }
+        .nav-r { display: flex; gap: 24px; align-items: center; }
+        .nav-r a { font-size: 13px; font-weight: 600; color: #555; }
+        .nav-r a:hover { color: #000; }
+
+        .wallet-btn {
+            background: var(--accent); color: #fff; border: none; padding: 10px 22px;
+            border-radius: 50px; font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: all 0.3s; font-family: inherit;
+        }
+        .wallet-btn:hover { background: #c53018; }
+        .wallet-btn.connected { background: #10B981; }
+
+        main { max-width: 680px; margin: 0 auto; padding: 60px 20px; }
+        h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 900; margin-bottom: 8px; }
+        .sub { color: #666; font-size: 16px; margin-bottom: 40px; line-height: 1.5; }
+
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: #444; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 14px 16px; border: 1px solid #d0ccc6; border-radius: 12px;
+            font-size: 15px; font-family: inherit; background: #fff; transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
+
+        .guardrail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media(max-width:500px) { .guardrail-grid { grid-template-columns: 1fr; } }
+
+        .preview-box {
+            background: #1a1a2e; color: #EFEAE3; border-radius: 16px; padding: 24px;
+            margin: 32px 0; font-size: 14px; line-height: 1.7;
+        }
+        .preview-box h3 { font-size: 16px; margin-bottom: 12px; color: var(--accent); }
+        .preview-box code { background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+
+        .deploy-btn {
+            width: 100%; padding: 18px; background: var(--accent); color: #fff; border: none;
+            border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer;
+            margin-top: 8px; transition: all 0.3s; font-family: inherit;
+        }
+        .deploy-btn:hover:not(:disabled) { background: #c53018; transform: translateY(-1px); }
+        .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .result { margin-top: 20px; padding: 18px; border-radius: 12px; display: none; }
+        .result.success { background: #d1fae5; color: #065f46; display: block; }
+        .result.error { background: #fee2e2; color: #991b1b; display: block; }
+
+        .back-link { display: block; text-align: center; margin-top: 30px; font-size: 13px; color: #999; }
+        .back-link:hover { color: #555; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="nav-l">Agent<span>OS</span></a>
+        <div class="nav-r">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <button class="wallet-btn" id="walletBtn" onclick="toggleWallet()">Connect Wallet</button>
+        </div>
+    </nav>
+
+    <main>
+        <h1>Deploy an Agent</h1>
+        <p class="sub">Configure your autonomous AI agent. It will run on Groq's Llama 3.3 70B with real Sui testnet data and Walrus logging.</p>
+
+        <form id="deployForm">
+            <div class="form-group">
+                <label>Agent Type</label>
+                <select id="agentType" required>
+                    <option value="yield">Yield Agent — Auto-compound DeepBook LP</option>
+                    <option value="trader">Trader Agent — Arbitrage spot + margin</option>
+                    <option value="prediction">Prediction Agent — Kelly criterion betting</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Agent Name</label>
+                <input type="text" id="agentName" placeholder="My Yield Agent" required>
+            </div>
+            <div class="form-group">
+                <label>Loop Interval (seconds)</label>
+                <input type="number" id="interval" value="45" min="15" max="600" required>
+            </div>
+
+            <div class="guardrail-grid">
+                <div class="form-group">
+                    <label>Max TX (SUI)</label>
+                    <input type="number" id="maxTx" value="100" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Daily Spend Limit (SUI)</label>
+                    <input type="number" id="dailyLimit" value="500" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Min APR / Stop Loss (%)</label>
+                    <input type="number" id="threshold1" value="3" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Max Single Pool / Min Profit (%)</label>
+                    <input type="number" id="threshold2" value="50" step="0.1">
+                </div>
+            </div>
+
+            <div class="preview-box" id="preview">
+                <h3>Guardrail Preview</h3>
+                <div id="previewContent"></div>
+            </div>
+
+            <button type="submit" class="deploy-btn" id="deployBtn">Deploy Agent</button>
+        </form>
+
+        <div class="result" id="result"></div>
+        <a href="index.html" class="back-link">&larr; Back to Home</a>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mysten/dapp-kit@0.14.0/dist/dapp-kit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mysten/sui@1.18.0/dist/sui.min.js"></script>
+    <script>
+        var API = window.location.origin;
+        var walletBtn = document.getElementById("walletBtn");
+        var walletAddress = "";
+
+        function toggleWallet() {
+            if (walletAddress) {
+                walletAddress = "";
+                updateWalletUI();
+                return;
+            }
+            // Try Sui Wallet
+            if (window.suiWallet) {
+                window.suiWallet.requestAccounts().then(function(accounts) {
+                    if (accounts && accounts.length) {
+                        walletAddress = accounts[0];
+                        updateWalletUI();
+                    }
+                }).catch(function() { alert("Please install Sui Wallet extension"); });
+            } else {
+                alert("Sui Wallet not detected. Install from chrome web store to connect.\n\nYou can still deploy agents without a wallet — they will run on the server.");
+            }
+        }
+
+        function updateWalletUI() {
+            if (walletAddress) {
+                walletBtn.textContent = walletAddress.substring(0, 6) + "..." + walletAddress.substring(walletAddress.length - 4);
+                walletBtn.classList.add("connected");
+            } else {
+                walletBtn.textContent = "Connect Wallet";
+                walletBtn.classList.remove("connected");
+            }
+        }
+
+        // Auto-detect Sui wallet
+        setTimeout(function() {
+            if (window.suiWallet) {
+                window.suiWallet.getAccounts().then(function(acc) {
+                    if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
+                }).catch(function() {});
+            }
+        }, 1000);
+
+        // Preview update
+        var at = document.getElementById("agentType");
+        var maxTx = document.getElementById("maxTx");
+        var dailyLimit = document.getElementById("dailyLimit");
+        var thr1 = document.getElementById("threshold1");
+        var thr2 = document.getElementById("threshold2");
+
+        function updatePreview() {
+            var t = at.value;
+            var labels = {
+                yield: ["max_tx_sui", "daily_spend_sui", "min_apr_threshold_pct", "max_single_pool_pct"],
+                trader: ["max_tx_sui", "daily_spend_sui", "stop_loss_pct", "min_profit_pct"],
+                prediction: ["max_bet_sui", "daily_spend_sui", "min_confidence_pct", "max_exposure_pct"]
+            };
+            var la = labels[t] || labels["yield"];
+            var h = "<code>" + la[0] + ": " + maxTx.value + " SUI</code><br>";
+            h += "<code>" + la[1] + ": " + dailyLimit.value + " SUI</code><br>";
+            h += "<code>" + la[2] + ": " + thr1.value + "%</code><br>";
+            h += "<code>" + la[3] + ": " + thr2.value + "%</code>";
+            document.getElementById("previewContent").innerHTML = h;
+        }
+        [at, maxTx, dailyLimit, thr1, thr2].forEach(function(el) { el.addEventListener("input", updatePreview); });
+        at.dispatchEvent(new Event("input"));
+
+        // Deploy
+        document.getElementById("deployForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            var btn = document.getElementById("deployBtn");
+            var res = document.getElementById("result");
+            btn.disabled = true;
+            btn.textContent = "Deploying...";
+            res.className = "result";
+            res.textContent = "";
+
+            var guardrails = {};
+            var t = at.value;
+            if (t === "yield") guardrails = {max_tx_sui: +maxTx.value, daily_spend_sui: +dailyLimit.value, min_apr_threshold_pct: +thr1.value, max_single_pool_pct: +thr2.value};
+            else if (t === "trader") guardrails = {max_tx_sui: +maxTx.value, daily_spend_sui: +dailyLimit.value, stop_loss_pct: +thr1.value, min_profit_pct: +thr2.value};
+            else guardrails = {max_bet_sui: +maxTx.value, daily_spend_sui: +dailyLimit.value, min_confidence_pct: +thr1.value, max_exposure_pct: +thr2.value};
+
+            fetch(API + "/api/runtime/agents/deploy", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    name: document.getElementById("agentName").value,
+                    agent_type: t,
+                    interval_seconds: parseInt(document.getElementById("interval").value),
+                    guardrails: guardrails,
+                    wallet_address: walletAddress,
+                })
+            })
+            .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+            .then(function(r) {
+                btn.disabled = false;
+                btn.textContent = "Deploy Agent";
+                if (r.ok) {
+                    res.className = "result success";
+                    res.innerHTML = "<strong>Agent deployed!</strong><br>ID: <code>" + r.data.agent_id + "</code><br>Name: " + r.data.name + "<br>Type: " + r.data.type + "<br><br><a href='dashboard.html'>View Dashboard &rarr;</a>";
+                } else {
+                    res.className = "result error";
+                    res.textContent = "Error: " + (r.data.detail || "Deployment failed");
+                }
+            })
+            .catch(function(err) {
+                btn.disabled = false;
+                btn.textContent = "Deploy Agent";
+                res.className = "result error";
+                res.textContent = "Network error: " + err.message;
+            });
+        });
+    </script>
+</body>
+</html>

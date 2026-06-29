@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050816" />
+  <link rel="preconnect" href="http://fonts.googleapis.com" />
+  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <title>Dashboard — AgentOS</title>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-brand">AGENT<span class="accent">OS</span> <span class="nav-section-title">Dashboard</span></div>
+  <nav class="nav-links">
+    <a href="index.html">← Home</a>
+  </nav>
+  <button class="login-btn connected" id="login-btn">
+    <span class="login-icon">●</span>
+    <span id="login-text">0x1234...5678</span>
+  </button>
+</header>
+
+<section class="dashboard">
+  <!-- Stats Row -->
+  <div class="dash-stats">
+    <div class="dash-stat">
+      <div class="dash-stat-value" id="dash-agents">0</div>
+      <div class="dash-stat-label">Active Agents</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-value" id="dash-volume">0 SUI</div>
+      <div class="dash-stat-label">Total Volume</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-value" id="dash-txns">0</div>
+      <div class="dash-stat-label">Actions Today</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-stat-value" id="dash-pnl">0 SUI</div>
+      <div class="dash-stat-label">Total PnL</div>
+    </div>
+  </div>
+
+  <!-- Agent List -->
+  <div class="dash-section">
+    <div class="dash-section-header">
+      <h3>Your Agents</h3>
+      <button class="btn-sm" onclick="window.location.href='index.html#deploy'">+ Deploy New</button>
+    </div>
+    <div class="agent-table" id="agent-table">
+      <div class="agent-table-header">
+        <span>Agent</span><span>Type</span><span>Balance</span><span>PnL</span><span>Actions</span><span>Status</span>
+      </div>
+      <div class="agent-row" id="agent-row-template" style="display:none">
+        <span class="agent-name-cell"><span class="agent-dot active"></span> <span class="a-name">—</span></span>
+        <span class="a-type">—</span>
+        <span class="a-balance">—</span>
+        <span class="a-pnl">—</span>
+        <span class="a-actions">—</span>
+        <span class="a-status active">Active</span>
+      </div>
+      <div class="agent-table-empty" id="agent-table-empty">
+        No agents deployed yet. <a href="index.html#deploy">Deploy your first agent →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Log -->
+  <div class="dash-section">
+    <div class="dash-section-header">
+      <h3>Action Log <span class="walrus-badge">Verified by Walrus</span></h3>
+    </div>
+    <div class="action-log" id="action-log">
+      <div class="action-log-entry">
+        <span class="log-time">—</span>
+        <span class="log-agent">—</span>
+        <span class="log-action">Awaiting agent activity…</span>
+        <span class="log-hash">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DeepBook Integration Panel -->
+  <div class="dash-section">
+    <div class="dash-section-header">
+      <h3>DeepBook Markets</h3>
+    </div>
+    <div class="deepbook-panel" id="deepbook-panel">
+      <div class="deepbook-card">
+        <div class="db-header">SUI/USDC Pool</div>
+        <div class="db-row"><span>TVL</span><span>$2.4M</span></div>
+        <div class="db-row"><span>APR</span><span class="positive">8.2%</span></div>
+        <div class="db-row"><span>24h Volume</span><span>$890K</span></div>
+      </div>
+      <div class="deepbook-card">
+        <div class="db-header">SUI/USDT Pool</div>
+        <div class="db-row"><span>TVL</span><span>$1.8M</span></div>
+        <div class="db-row"><span>APR</span><span class="positive">6.5%</span></div>
+        <div class="db-row"><span>24h Volume</span><span>$620K</span></div>
+      </div>
+      <div class="deepbook-card">
+        <div class="db-header">Predict: SUI > $5 by July</div>
+        <div class="db-row"><span>Pool</span><span>140K SUI</span></div>
+        <div class="db-row"><span>Yes Price</span><span>0.42 SUI</span></div>
+        <div class="db-row"><span>Implied %</span><span>42%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+[package]
+name = "AgentOS"
+version = "0.1.0"
+edition = "2024.beta"
+license = "Apache-2.0"
+
+[addresses]
+agentos = "0x0"  # replace with deployed address
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.45.0" }
+DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "testnet-v1.45.0" }

@@ -3,269 +3,360 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0d1317" />
+  <meta name="theme-color" content="#050816" />
   <link rel="preconnect" href="http://fonts.googleapis.com" />
   <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
-  <title>Nimbus Grid</title>
-  <script type="module" crossorigin src="/assets/index-CTu1PtXg.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BOWaFdiV.css">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>AgentOS — OS for On-Chain AI Agents</title>
+  <script type="module" crossorigin src="/assets/main-CZqlnczV.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/styles-ChtHvI_T.js">
+  <link rel="stylesheet" crossorigin href="/assets/styles-mz__Mvs_.css">
 </head>
 <body>
 
-  <!-- Parallax depth layers -->
-  <div class="parallax-layer layer-deep" aria-hidden="true"></div>
-  <div class="parallax-layer layer-mid" aria-hidden="true"></div>
-  <div class="parallax-layer layer-shallow" aria-hidden="true"></div>
+<!-- ── Nav ── -->
+<header class="nav">
+  <div class="nav-brand">AGENT<span class="accent">OS</span></div>
+  <nav class="nav-links">
+    <a href="#agents">Agents</a>
+    <a href="#primitives">Sui Primitives</a>
+    <a href="#deploy">Deploy</a>
+    <a href="#architecture">Architecture</a>
+    <a href="dashboard.html" class="nav-dashboard">Dashboard →</a>
+  </nav>
+  <button class="login-btn" id="login-btn" onclick="toggleLogin()">
+    <span class="login-icon">○</span>
+    <span id="login-text">Connect</span>
+  </button>
+</header>
 
-  <!-- ── Hero ── -->
-  <section class="hero">
-    <canvas class="shader-canvas"></canvas>
-    <div class="shader-fallback"></div>
-
-    <header class="site-header">
-      <div class="brand">NIMBUS GRID</div>
-      <div class="header-right">
-        <nav class="primary-nav">
-          <a href="#technology">Technology</a>
-          <a href="#security">Security</a>
-          <a href="#capacity">Capacity</a>
-          <a href="#operations">Operations</a>
-        </nav>
-        <a href="#plans" class="header-cta">Get Started</a>
-      </div>
-    </header>
-
-    <div class="hero-grid">
-      <div class="console-card reveal-up">
-        <div class="console-tabs" role="tablist">
-          <button class="console-tab is-active" role="tab" aria-selected="true">CLI</button>
-          <button class="console-tab" role="tab" aria-selected="false">API</button>
-          <button class="console-tab" role="tab" aria-selected="false">Console</button>
-          <span class="tab-spacer"></span>
-          <div class="window-controls">
-            <div class="wc-square"></div>
-            <div class="wc-bar"></div>
-          </div>
-        </div>
-        <div class="console-panes">
-          <div class="console-pane is-active" data-pane="0">
-            <div class="console-output" id="console-output">
-              <pre class="console-text"><span class="prompt">$</span> agentos status
-<span class="output">Connecting to AgentOS v0.1…</span></pre>
-            </div>
-            <form class="console-input-form" id="console-form" autocomplete="off">
-              <span class="prompt">$</span>
-              <input type="text" class="console-command-input" id="console-input" placeholder="type a command (help, status, store, scan)…" />
-            </form>
-          </div>
-          <div class="console-pane" data-pane="1">
-            <pre class="console-text"><span class="prompt">POST</span> /v1/storage/pools
-{
-  "<span class="val">name</span>": "<span class="val">web-db-test</span>",
-  "<span class="val">tier</span>": "<span class="val">encrypted-fast</span>",
-  "<span class="val">quota</span>": "<span class="val">8 TiB</span>"
-}
-<span class="output" data-typed>202 accepted: provisioning policy attached</span></pre>
-          </div>
-          <div class="console-pane" data-pane="2">
-            <div class="console-form">
-              <label>Instance name</label>
-              <div class="console-input" data-typed>web-db-test</div>
-              <label>Image</label>
-              <div class="console-input is-select">ubuntu-24.04-noble</div>
-              <div class="console-row">
-                <div>
-                  <label>Memory</label>
-                  <div class="console-input is-select">8 GiB</div>
-                </div>
-                <div>
-                  <label>CPUs</label>
-                  <div class="console-input is-select">2</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero-copy reveal-up">
-        <h1>Cloud space that scales with your business systems.</h1>
-        <p>Nimbus Grid sells secure cloud storage capacity for companies that need fast onboarding, predictable throughput, encrypted collaboration, and modern data residency controls.</p>
-      </div>
+<!-- ── Hero ── -->
+<section class="hero">
+  <canvas class="shader-canvas" id="shader"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">Sui Agentathon 2026</div>
+    <h1>OS for <span class="gradient">On-Chain AI Agents</span></h1>
+    <p class="hero-sub">Deploy autonomous agents with Sui wallets, verifiable execution via Walrus, and programmable guardrails — in one click.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="scrollToDeploy()">Deploy an Agent</button>
+      <button class="btn-secondary" onclick="window.open('https://github.com/subheeksh5599/AgentOS','_blank')">View Contracts</button>
     </div>
-
-    <div class="scroll-hint" aria-hidden="true">
-      <span class="scroll-hint-line"></span>
-    </div>
-  </section>
-
-  <!-- ── Features ── -->
-  <section class="features" id="technology">
-    <div class="section-label reveal-up">Technology</div>
-    <h2 class="section-title reveal-up">Storage engineered for production scale.</h2>
-    <div class="features-grid">
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25C9;</div>
-        <h3>Encrypted at rest and in transit</h3>
-        <p>Every byte is encrypted with AES-256-GCM before it touches disk. Keys rotate automatically every 72 hours with zero-downtime handoff.</p>
-        <button class="feature-popup-trigger" data-popup="encryption">Learn about encryption →</button>
-      </div>
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25CB;</div>
-        <h3>Multi-region data residency</h3>
-        <p>Pin storage pools to specific geographic regions. Nimbus Grid enforces residency at the control-plane level — your data never leaves the jurisdictions you choose.</p>
-        <button class="feature-popup-trigger" data-popup="residency">Learn about residency →</button>
-      </div>
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25CC;</div>
-        <h3>Predictable throughput SLAs</h3>
-        <p>Guaranteed IOPS and bandwidth per storage pool. No noisy neighbours — each pool gets dedicated provisioned capacity with burst headroom.</p>
-        <button class="feature-popup-trigger" data-popup="throughput">Learn about throughput →</button>
-      </div>
-      <div class="feature-card reveal-up">
-        <div class="feature-icon">&#x25CE;</div>
-        <h3>Immutable audit trail</h3>
-        <p>Every read, write, and permission change is logged to an append-only ledger. Export audit trails to your SIEM in real time over streaming gRPC.</p>
-        <button class="feature-popup-trigger" data-popup="audit">Learn about audit →</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Live Agent Feed ── -->
-  <section class="agent-feed" id="operations">
-    <div class="section-label reveal-up">Live Operations</div>
-    <h2 class="section-title reveal-up">AgentOS real-time event stream.</h2>
-    <div class="feed-container reveal-up">
-      <div class="feed-header">
-        <span class="feed-status" id="feed-status">
-          <span class="feed-dot"></span>
-          <span id="feed-status-text">Connecting…</span>
-        </span>
-        <span class="feed-meta" id="feed-meta">AgentOS v0.1</span>
-      </div>
-      <div class="feed-log" id="feed-log">
-        <div class="feed-entry feed-placeholder">Awaiting agent connection…</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Stats ── -->
-  <section class="stats" id="capacity">
-    <div class="stats-grid reveal-up">
-      <div class="stat-item">
-        <div class="stat-value" data-count="14">0</div>
-        <div class="stat-unit">regions</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" data-count="99.99">0</div>
-        <div class="stat-unit">% uptime SLA</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" data-count="8.4">0</div>
-        <div class="stat-unit">exabytes under management</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" data-count="12">0</div>
-        <div class="stat-unit">ms p99 write latency</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Tiers / Plans ── -->
-  <section class="plans" id="plans">
-    <div class="section-label reveal-up">Plans</div>
-    <h2 class="section-title reveal-up">One pricing model. No surprises.</h2>
-    <div class="plans-grid">
-      <div class="plan-card reveal-up">
-        <div class="plan-header">
-          <div class="plan-name">Developer</div>
-          <div class="plan-price">$0<span class="plan-period">/mo</span></div>
-        </div>
-        <ul class="plan-features">
-          <li>10 GiB encrypted storage</li>
-          <li>1 region</li>
-          <li>Community support</li>
-          <li>7-day audit retention</li>
-        </ul>
-        <a href="#" class="plan-cta">Start free</a>
-      </div>
-      <div class="plan-card plan-featured reveal-up">
-        <div class="plan-badge">Most popular</div>
-        <div class="plan-header">
-          <div class="plan-name">Production</div>
-          <div class="plan-price">$2<span class="plan-period">/TiB/mo</span></div>
-        </div>
-        <ul class="plan-features">
-          <li>Up to 500 TiB</li>
-          <li>Multi-region replication</li>
-          <li>Priority support — 4h SLA</li>
-          <li>30-day audit retention</li>
-          <li>SSO and SAML</li>
-          <li>Provisioned IOPS</li>
-        </ul>
-        <a href="#" class="plan-cta">Start trial</a>
-      </div>
-      <div class="plan-card reveal-up">
-        <div class="plan-header">
-          <div class="plan-name">Enterprise</div>
-          <div class="plan-price">Custom</div>
-        </div>
-        <ul class="plan-features">
-          <li>Unlimited capacity</li>
-          <li>Any region, any topology</li>
-          <li>Dedicated support engineer</li>
-          <li>Unlimited audit retention</li>
-          <li>On-premise gateway</li>
-          <li>Custom encryption keys</li>
-          <li>99.99% uptime SLA</li>
-        </ul>
-        <button class="plan-cta contact-trigger" data-popup="contact">Contact sales</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Footer ── -->
-  <footer class="site-footer">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="brand" style="margin-bottom:14px">NIMBUS GRID</div>
-        <p style="color:var(--muted);font-size:13px;max-width:240px">Secure cloud storage capacity for teams that ship.</p>
-      </div>
-      <div class="footer-col">
-        <div class="footer-label">Product</div>
-        <a href="#">Technology</a>
-        <a href="#">Security</a>
-        <a href="#">Plans</a>
-        <a href="#">Changelog</a>
-      </div>
-      <div class="footer-col">
-        <div class="footer-label">Company</div>
-        <a href="#">About</a>
-        <a href="#">Blog</a>
-        <a href="#">Careers</a>
-        <a href="#">Legal</a>
-      </div>
-      <div class="footer-col">
-        <div class="footer-label">Developers</div>
-        <a href="#">Documentation</a>
-        <a href="#">API Reference</a>
-        <a href="#">CLI Guide</a>
-        <a href="#">Status</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; 2026 Nimbus Grid. All rights reserved.</span>
-    </div>
-  </footer>
-
-  <!-- ── Popup overlay ── -->
-  <div class="popup-overlay" id="popup-overlay" aria-hidden="true">
-    <div class="popup-card" role="dialog" aria-modal="true">
-      <button class="popup-close" aria-label="Close">&times;</button>
-      <div class="popup-body"></div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="stat-num" id="stat-agents">—</span><span class="stat-label">agents deployed</span></div>
+      <div class="hero-stat"><span class="stat-num" id="stat-volume">—</span><span class="stat-label">total volume</span></div>
+      <div class="hero-stat"><span class="stat-num">7</span><span class="stat-label">Sui primitives</span></div>
+      <div class="hero-stat"><span class="stat-num">3</span><span class="stat-label">agent types</span></div>
     </div>
   </div>
+</section>
+
+<!-- ── Agent Types ── -->
+<section class="section" id="agents">
+  <div class="section-label">Agent Types</div>
+  <h2 class="section-title">Deploy in one click. Configure guardrails. <span class="gradient">Let it run.</span></h2>
+  <div class="agent-cards">
+    <div class="agent-card">
+      <div class="agent-card-icon">⚡</div>
+      <h3>Yield Agent</h3>
+      <p>Scans DeepBook pools for best APR. Rebalances daily, compounds rewards. Set min-yield thresholds and max pool exposure.</p>
+      <div class="agent-card-tags">
+        <span class="tag">DeepBook Pools</span>
+        <span class="tag">Auto-Compound</span>
+        <span class="tag">Daily Rebalance</span>
+      </div>
+      <button class="btn-deploy" onclick="deployAgent('yield')">Deploy Yield Agent</button>
+    </div>
+    <div class="agent-card featured">
+      <div class="agent-card-badge">Most Popular</div>
+      <div class="agent-card-icon">📈</div>
+      <h3>Trader Agent</h3>
+      <p>Arbitrage across DeepBook Spot + Margin. Stop-loss/take-profit at configurable thresholds. Whitelist trading pairs.</p>
+      <div class="agent-card-tags">
+        <span class="tag">Spot Trading</span>
+        <span class="tag">Margin</span>
+        <span class="tag">Stop-Loss</span>
+        <span class="tag">Arbitrage</span>
+      </div>
+      <button class="btn-deploy" onclick="deployAgent('trader')">Deploy Trader Agent</button>
+    </div>
+    <div class="agent-card">
+      <div class="agent-card-icon">🔮</div>
+      <h3>Prediction Agent</h3>
+      <p>Trades DeepBook Predict markets using configurable scoring models. Kelly-criterion position sizing with confidence thresholds.</p>
+      <div class="agent-card-tags">
+        <span class="tag">DeepBook Predict</span>
+        <span class="tag">Kelly Criterion</span>
+        <span class="tag">Edge Detection</span>
+      </div>
+      <button class="btn-deploy" onclick="deployAgent('prediction')">Deploy Prediction Agent</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Sui Primitives ── -->
+<section class="section dark-section" id="primitives">
+  <div class="section-label">Sui Primitives</div>
+  <h2 class="section-title">7 Sui primitives <span class="gradient">powering every agent.</span></h2>
+  <div class="primitives-grid">
+    <div class="primitive-card">
+      <div class="primitive-icon">🌊</div>
+      <h4>Walrus</h4>
+      <p>Verifiable agent memory, execution logs, model configs stored as content-addressed blobs.</p>
+    </div>
+    <div class="primitive-card">
+      <div class="primitive-icon">🔐</div>
+      <h4>Seal</h4>
+      <p>Encrypted agent state and private keys — agents hold funds without exposing keys on-chain.</p>
+    </div>
+    <div class="primitive-card">
+      <div class="primitive-icon">📚</div>
+      <h4>DeepBook</h4>
+      <p>Shared liquidity across Spot, Margin, and Predict markets. Agents trade via unified interface.</p>
+    </div>
+    <div class="primitive-card">
+      <div class="primitive-icon">🆔</div>
+      <h4>zkLogin</h4>
+      <p>Agent identity tied to real users via Google OAuth — not just a keypair floating in space.</p>
+    </div>
+    <div class="primitive-card">
+      <div class="primitive-icon">⛽</div>
+      <h4>Sponsored TXs</h4>
+      <p>Gasless agent actions — agents execute autonomously without needing SUI in their wallet.</p>
+    </div>
+    <div class="primitive-card">
+      <div class="primitive-icon">⊞</div>
+      <h4>PTBs</h4>
+      <p>Atomic multi-step strategies in one transaction — swap→stake→log in a single block.</p>
+    </div>
+    <div class="primitive-card">
+      <div class="primitive-icon">💳</div>
+      <h4>Google AP2</h4>
+      <p>Agent-to-agent payments on Sui (Google's launch partner). Agents pay each other.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Deploy Flow ── -->
+<section class="section" id="deploy">
+  <div class="section-label">Deploy</div>
+  <h2 class="section-title">One click. <span class="gradient">Your agent goes live.</span></h2>
+  <div class="deploy-container">
+    <div class="deploy-steps">
+      <div class="deploy-step active" data-step="1">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Connect via zkLogin</h4>
+          <p>Sign in with Google — your Sui address is derived from your OAuth credential. No seed phrase.</p>
+        </div>
+      </div>
+      <div class="deploy-step" data-step="2">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Choose Agent Type</h4>
+          <p>Yield, Trader, or Prediction. Each comes with sensible defaults you can customize.</p>
+        </div>
+      </div>
+      <div class="deploy-step" data-step="3">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Set Guardrails</h4>
+          <p>Max transaction size, daily spend limits, allowed actions. You stay in control.</p>
+        </div>
+      </div>
+      <div class="deploy-step" data-step="4">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Fund & Deploy</h4>
+          <p>Send initial SUI. The agent goes live. All actions logged to Walrus. You can pause anytime.</p>
+        </div>
+      </div>
+    </div>
+    <div class="deploy-panel" id="deploy-panel">
+      <div class="deploy-panel-header">
+        <h3>Deploy Configuration</h3>
+      </div>
+      <div class="deploy-form">
+        <label>Agent Type</label>
+        <select id="agent-type" class="deploy-select">
+          <option value="yield">Yield Agent — DeepBook LP optimization</option>
+          <option value="trader">Trader Agent — Spot + Margin arbitrage</option>
+          <option value="prediction">Prediction Agent — Predict markets</option>
+        </select>
+        <label>Agent Name</label>
+        <input type="text" id="agent-name" class="deploy-input" placeholder="My Yield Agent" value="My Yield Agent" />
+        <label>Max TX Value (SUI)</label>
+        <input type="number" id="max-tx" class="deploy-input" value="100" min="1" />
+        <label>Daily Spend Limit (SUI)</label>
+        <input type="number" id="daily-limit" class="deploy-input" value="1000" min="1" />
+        <label>Initial Funding (SUI)</label>
+        <input type="number" id="initial-fund" class="deploy-input" value="100" min="1" />
+        <label>Allowed Actions</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label"><input type="checkbox" checked disabled /> Transfer</label>
+          <label class="checkbox-label"><input type="checkbox" checked /> Swap</label>
+          <label class="checkbox-label"><input type="checkbox" checked /> Stake</label>
+          <label class="checkbox-label"><input type="checkbox" checked /> LP Deposit</label>
+          <label class="checkbox-label"><input type="checkbox" /> LP Withdraw</label>
+          <label class="checkbox-label"><input type="checkbox" /> Predict</label>
+        </div>
+        <button class="btn-deploy-lg" onclick="handleDeploy()" id="deploy-btn">
+          Connect Wallet to Deploy
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Architecture ── -->
+<section class="section dark-section" id="architecture">
+  <div class="section-label">Architecture</div>
+  <h2 class="section-title">How AgentOS <span class="gradient">works.</span></h2>
+  <div class="arch-diagram">
+    <div class="arch-layer">
+      <div class="arch-layer-label">Identity & Auth</div>
+      <div class="arch-boxes">
+        <div class="arch-box">zkLogin</div>
+        <div class="arch-box">Google OAuth</div>
+        <div class="arch-box">Sponsored TXs</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-label">Agent Runtime</div>
+      <div class="arch-boxes">
+        <div class="arch-box">Agent Factory</div>
+        <div class="arch-box">Agent Wallet</div>
+        <div class="arch-box">Guardrails Engine</div>
+        <div class="arch-box">PTB Builder</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-label">Execution & Markets</div>
+      <div class="arch-boxes">
+        <div class="arch-box highlight">DeepBook Spot</div>
+        <div class="arch-box highlight">DeepBook Margin</div>
+        <div class="arch-box highlight">DeepBook Predict</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-label">Verifiability & State</div>
+      <div class="arch-boxes">
+        <div class="arch-box accent-box">Walrus — Logs</div>
+        <div class="arch-box accent-box">Walrus — Config</div>
+        <div class="arch-box accent-box">Seal — Keys</div>
+        <div class="arch-box accent-box">Action Log</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓</div>
+    <div class="arch-layer">
+      <div class="arch-layer-label">Payments</div>
+      <div class="arch-boxes">
+        <div class="arch-box">Google AP2</div>
+        <div class="arch-box">Agent ↔ Agent</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Demo Arc ── -->
+<section class="section" id="demo">
+  <div class="section-label">Demo Arc</div>
+  <h2 class="section-title">30 seconds. <span class="gradient">Wallet to agent.</span></h2>
+  <div class="demo-steps">
+    <div class="demo-step">
+      <div class="demo-step-icon">1</div>
+      <div class="demo-step-body">
+        <h4>Login via Google (zkLogin)</h4>
+        <p>One click. Your Google account becomes your Sui address. No wallet extension needed.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <div class="demo-step-icon">2</div>
+      <div class="demo-step-body">
+        <h4>Deploy a Yield Agent</h4>
+        <p>Choose strategy, set guardrails, fund with SUI. Agent goes live in one transaction.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <div class="demo-step-icon">3</div>
+      <div class="demo-step-body">
+        <h4>Agent finds best DeepBook yields</h4>
+        <p>Autonomously scans pools, rebalances daily, compounds rewards. Gas sponsored.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <div class="demo-step-icon">4</div>
+      <div class="demo-step-body">
+        <h4>All actions verifiable on Walrus</h4>
+        <p>Immutable audit trail. Every trade, every rebalance, every compound — verifiable on-chain.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <div class="nav-brand" style="margin-bottom:8px">AGENT<span class="accent">OS</span></div>
+      <p>Move-based framework for autonomous AI agents on Sui.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-label">Contracts</div>
+      <a href="#">Agent Registry</a>
+      <a href="#">Agent Wallet</a>
+      <a href="#">Guardrails</a>
+      <a href="#">Action Log</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-label">Agents</div>
+      <a href="#">Yield Agent</a>
+      <a href="#">Trader Agent</a>
+      <a href="#">Prediction Agent</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-label">Links</div>
+      <a href="#">GitHub</a>
+      <a href="#">Sui Testnet</a>
+      <a href="#">DeepBook</a>
+      <a href="#">Walrus Docs</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>AgentOS — Built for Sui Agentathon 2026. Apache 2.0.</span>
+  </div>
+</footer>
+
+<!-- ── zkLogin Modal ── -->
+<div class="modal-overlay" id="login-modal" aria-hidden="true">
+  <div class="modal-card">
+    <button class="modal-close" onclick="toggleLogin()">&times;</button>
+    <h3>Connect to AgentOS</h3>
+    <p class="modal-sub">Sign in with Google to create your agent identity on Sui.</p>
+    <button class="btn-google" onclick="handleZkLogin()">
+      <span class="google-icon">G</span>
+      Sign in with Google (zkLogin)
+    </button>
+    <div class="modal-divider"><span>or</span></div>
+    <button class="btn-sui" onclick="handleSuiWallet()">
+      Connect Sui Wallet
+    </button>
+    <p class="modal-note">Your Google account derives a Sui address. No seed phrase. No wallet extension required.</p>
+  </div>
+</div>
+
+<!-- ── Deploy Success Modal ── -->
+<div class="modal-overlay" id="success-modal" aria-hidden="true">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeSuccess()">&times;</button>
+    <div class="success-icon">✓</div>
+    <h3>Agent Deployed</h3>
+    <div class="success-details" id="success-details"></div>
+    <button class="btn-primary" onclick="window.location.href='dashboard.html'">View Dashboard</button>
+  </div>
+</div>
 
 </body>
 </html>

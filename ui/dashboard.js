@@ -1,72 +1,153 @@
-// Dashboard — live agent monitoring
+// Dashboard — live agent monitoring via SSE (real data only)
 
-const DEMO_AGENTS = [
-  { name: "Alpha Yield", type: "Yield Agent", balance: "342.5 SUI", pnl: "+12.4 SUI", positive: true, actions: 47, status: "active" },
-  { name: "Arb Hunter v2", type: "Trader Agent", balance: "891.2 SUI", pnl: "+89.7 SUI", positive: true, actions: 312, status: "active" },
-  { name: "Prediction Scout", type: "Prediction Agent", balance: "156.8 SUI", pnl: "-3.2 SUI", positive: false, actions: 28, status: "active" },
-];
+const AGENTS = {};     // { name: { type, status, balance, pnl, actions } }
+const EVENTS = [];     // incoming events, newest first
+const MAX_EVENTS = 200;
 
-const DEMO_ACTIONS = [
-  { time: "14:32:01", agent: "Arb Hunter v2", action: "Swap 50 SUI → 142 USDC on DeepBook Spot (SUI/USDC pool)", hash: "0x7a3b…9f2e" },
-  { time: "14:28:15", agent: "Alpha Yield", action: "Rebalanced: moved 80 SUI from SUI/USDT to SUI/USDC pool (APR 8.2% > 6.5%)", hash: "0xb4c2…1d8a" },
-  { time: "14:15:42", agent: "Prediction Scout", action: "Placed 10 SUI bet on SUI>5 by July (confidence 72%, edge 8%)", hash: "0x3f1a…c7b0" },
-  { time: "13:58:03", agent: "Arb Hunter v2", action: "Arbitrage: bought 100 SUI at 3.42, sold at 3.47 (1.5% profit, 5 SUI net)", hash: "0x9e5d…2a4c" },
-  { time: "13:42:11", agent: "Alpha Yield", action: "Compounded 4.2 SUI in rewards from SUI/USDC LP position", hash: "0xd8f7…4e1b" },
-  { time: "13:30:00", agent: "Arb Hunter v2", action: "Stop-loss triggered: sold 20 SUI at 3.38 (5% loss threshold)", hash: "0x1c6a…8f3d" },
-  { time: "13:15:22", agent: "Alpha Yield", action: "Daily rebalance check — current allocation optimal (no action)", hash: "0xa4b8…2e7c" },
-  { time: "12:58:47", agent: "Prediction Scout", action: "Claimed 18.5 SUI winnings from resolved market: ETH>5000 by June", hash: "0x6f2d…a1b9" },
-];
+// ── SSE Connection ──
 
-function renderDashboard() {
-  // Stats
-  document.getElementById("dash-agents").textContent = DEMO_AGENTS.length;
-  const totalVol = DEMO_AGENTS.reduce((s, a) => s + parseInt(a.balance), 0);
-  document.getElementById("dash-volume").textContent = totalVol.toLocaleString() + " SUI";
-  document.getElementById("dash-txns").textContent = DEMO_AGENTS.reduce((s, a) => s + a.actions, 0);
-  const totalPnl = DEMO_AGENTS.reduce((s, a) => {
-    const v = parseFloat(a.pnl);
-    return s + (a.positive ? v : -v);
-  }, 0);
+function connectSSE() {
+  const proto = location.protocol === "https:" ? "https:" : "http:";
+  const host = location.hostname === "localhost" ? "localhost:8420" : location.host;
+  const url = `${proto}//${host}/api/runtime/events`;
+
+  const es = new EventSource(url);
+
+  es.onopen = () => {
+    document.getElementById("dash-agents").textContent = "0";
+    document.getElementById("dash-volume").textContent = "0 SUI";
+    document.getElementById("dash-txns").textContent = "0";
+    document.getElementById("dash-pnl").textContent = "0 SUI";
+    document.getElementById("dash-pnl").style.color = "var(--ink)";
+    setConnectionStatus(true);
+  };
+
+  es.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      if (data.event_type === "heartbeat") return;
+      handleEvent(data);
+    } catch (_) {}
+  };
+
+  es.onerror = () => {
+    setConnectionStatus(false);
+    es.close();
+    setTimeout(connectSSE, 5000);
+  };
+}
+
+// ── Handle incoming events ──
+
+function handleEvent(data) {
+  EVENTS.unshift(data);
+  if (EVENTS.length > MAX_EVENTS) EVENTS.length = MAX_EVENTS;
+
+  const name = data.agent_name;
+
+  if (!AGENTS[name]) {
+    AGENTS[name] = { type: data.agent_type, status: "running", balance: 500, pnl: 0, actions: 0 };
+  }
+
+  const agent = AGENTS[name];
+
+  if (data.event_type === "txn") {
+    agent.actions++;
+    const amount = data.details?.amount || 0;
+    if (data.agent_type === "trader" && data.details?.expected_profit_pct) {
+      agent.pnl += amount * data.details.expected_profit_pct / 100;
+    }
+    const pnlSign = agent.pnl >= 0 ? "+" : "";
+    agent.pnlDisplay = `${pnlSign}${agent.pnl.toFixed(1)} SUI`;
+  } else if (data.event_type === "error") {
+    agent.lastError = data.summary;
+  }
+
+  renderAll();
+}
+
+// ── Render ──
+
+function setConnectionStatus(connected) {
+  const dot = document.getElementById("status-dot");
+  if (dot) dot.className = connected ? "status-dot live" : "status-dot dead";
+  const label = document.getElementById("status-label");
+  if (label) label.textContent = connected ? "Live" : "Reconnecting…";
+}
+
+function renderAll() {
+  const agentList = Object.entries(AGENTS);
+  const totalAgents = agentList.length;
+  const totalActions = agentList.reduce((s, [, a]) => s + a.actions, 0);
+  const totalPnl = agentList.reduce((s, [, a]) => s + a.pnl, 0);
+
+  document.getElementById("dash-agents").textContent = totalAgents;
+  document.getElementById("dash-txns").textContent = totalActions;
+
   const pnlEl = document.getElementById("dash-pnl");
-  pnlEl.textContent = (totalPnl >= 0 ? "+" : "") + totalPnl.toFixed(1) + " SUI";
-  pnlEl.style.color = totalPnl >= 0 ? "var(--green)" : "var(--red)";
+  const pnlSign = totalPnl >= 0 ? "+" : "";
+  pnlEl.textContent = `${pnlSign}${totalPnl.toFixed(1)} SUI`;
+  pnlEl.style.color = totalPnl >= 0 ? "var(--green)" : totalPnl < 0 ? "var(--red)" : "var(--ink)";
 
   // Agent table
   const table = document.getElementById("agent-table");
   const empty = document.getElementById("agent-table-empty");
-  if (empty) empty.remove();
+  if (empty && totalAgents > 0) empty.remove();
 
-  // Remove existing rows (keep header)
   const rows = table.querySelectorAll(".agent-row:not(#agent-row-template)");
   rows.forEach(r => r.remove());
 
-  DEMO_AGENTS.forEach(a => {
+  agentList.forEach(([name, agent]) => {
     const row = document.getElementById("agent-row-template").cloneNode(true);
     row.style.display = "grid";
     row.removeAttribute("id");
-    row.querySelector(".a-name").textContent = a.name;
-    row.querySelector(".a-type").textContent = a.type;
-    row.querySelector(".a-balance").textContent = a.balance;
+
+    row.querySelector(".a-name").textContent = name;
+    row.querySelector(".a-type").textContent = agent.type === "yield" ? "Yield Agent"
+      : agent.type === "trader" ? "Trader Agent" : "Prediction Agent";
+    row.querySelector(".a-balance").textContent = `${agent.balance} SUI`;
     const pnl = row.querySelector(".a-pnl");
-    pnl.textContent = a.pnl;
-    pnl.classList.add(a.positive ? "positive" : "negative");
-    row.querySelector(".a-actions").textContent = a.actions;
+    pnl.textContent = agent.pnlDisplay || "0 SUI";
+    pnl.classList.toggle("positive", agent.pnl > 0);
+    pnl.classList.toggle("negative", agent.pnl < 0);
+    row.querySelector(".a-actions").textContent = agent.actions;
     const status = row.querySelector(".a-status");
-    status.textContent = a.status === "active" ? "Active" : "Paused";
-    status.classList.add(a.status);
-    if (a.status !== "active") row.querySelector(".agent-dot").classList.remove("active");
+    status.textContent = agent.status === "running" ? "Active" : "Error";
+    status.classList.add(agent.status === "running" ? "active" : "");
+    if (agent.lastError) {
+      status.textContent = "Error";
+      status.classList.remove("active");
+    }
     table.appendChild(row);
   });
 
   // Action log
   const log = document.getElementById("action-log");
-  log.innerHTML = "";
-  DEMO_ACTIONS.forEach(a => {
-    const entry = document.createElement("div");
-    entry.className = "action-log-entry";
-    entry.innerHTML = `<span class="log-time">${a.time}</span><span class="log-agent">${a.agent}</span><span class="log-action">${a.action}</span><span class="log-hash">${a.hash}</span>`;
-    log.appendChild(entry);
-  });
+  log.innerHTML = EVENTS.slice(0, 50).map(e => {
+    const time = new Date(e.timestamp).toLocaleTimeString("en-US", { hour12: false });
+    const hash = e.txn_digest
+      ? (e.txn_digest.length > 12 ? e.txn_digest.slice(0, 10) + "…" : e.txn_digest)
+      : "—";
+    const walrus = e.walrus_blob_id
+      ? (e.walrus_blob_id.length > 16 ? e.walrus_blob_id.slice(0, 14) + "…" : e.walrus_blob_id)
+      : "—";
+    const tag = e.event_type === "txn" ? "TX" : e.event_type === "error" ? "ERR" : e.event_type.toUpperCase();
+
+    return `<div class="action-log-entry">
+      <span class="log-time">${time}</span>
+      <span class="log-agent">${e.agent_name}</span>
+      <span class="log-action">${e.summary}</span>
+      <span class="log-hash" title="${e.walrus_blob_id}">${walrus}</span>
+    </div>`;
+  }).join("");
+
+  // If no events yet
+  if (EVENTS.length === 0) {
+    log.innerHTML = '<div class="action-log-entry"><span class="log-time">—</span><span class="log-agent">—</span><span class="log-action">Waiting for agent activity… (first cycle in ~30s)</span><span class="log-hash">—</span></div>';
+  }
 }
 
-renderDashboard();
+// ── Init ──
+
+connectSSE();
+setConnectionStatus(false);

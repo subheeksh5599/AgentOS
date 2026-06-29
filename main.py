@@ -8,7 +8,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from apiroutes import router
-from agents import run_ops, run_monitor, run_security, run_storage
+from runtime.api import router as runtime_router
+from runtime.agents import run_yield, run_trader, run_prediction
 
 UI_DIR = Path(__file__).parent / "ui"
 
@@ -16,20 +17,21 @@ UI_DIR = Path(__file__).parent / "ui"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     tasks = [
-        asyncio.create_task(run_storage()),
-        asyncio.create_task(run_security()),
-        asyncio.create_task(run_monitor()),
-        asyncio.create_task(run_ops()),
+        asyncio.create_task(run_yield()),
+        asyncio.create_task(run_trader()),
+        asyncio.create_task(run_prediction()),
     ]
-    print("AgentOS v0.1 — 4 agents online, Nimbus Grid operational")
+    print("AgentOS v1.0 — 3 AI agents online (yield, trader, prediction)")
+    print("  Groq: llama-3.3-70b-versatile | Sui testnet | Walrus logging")
     yield
     for t in tasks:
         t.cancel()
 
 
-app = FastAPI(title="AgentOS", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="AgentOS", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(router)
+app.include_router(runtime_router)
 
 if (UI_DIR / "dist").exists():
     app.mount("/assets", StaticFiles(directory=UI_DIR / "dist" / "assets"), name="assets")
@@ -43,7 +45,7 @@ if (UI_DIR / "dist").exists():
 else:
     @app.get("/")
     async def root():
-        return {"agentos": "0.1.0", "tip": "cd ui && npm run build"}
+        return {"agentos": "1.0.0", "tip": "cd ui && npm run build"}
 
 
 def main():

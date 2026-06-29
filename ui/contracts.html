@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4f1e8" />
+  <link rel="preconnect" href="http://fonts.googleapis.com" />
+  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/subpage.css" />
+  <title>Contracts — AgentOS</title>
+</head>
+<body>
+
+<header class="subnav">
+  <a href="index.html" class="subnav-word">← AGENT<span class="accent">OS</span></a>
+  <a href="api.html">api</a>
+  <a href="dashboard.html">dashboard</a>
+  <span class="subnav-label">contracts</span>
+</header>
+
+<section class="spread">
+  <div class="spread-gutter"><span class="folio">move</span></div>
+  <h2 class="spread-head">Move contracts.<br>Seven modules on Sui.</h2>
+
+  <div class="api-section">
+    <h4>Core</h4>
+    <div class="contract-card">
+      <h5>agent_registry.move <span>discovery</span></h5>
+      <p>Central directory for all deployed agents. Owner binding, category indexing, active/paused toggle. Emits AgentRegistered events for off-chain indexing. Initialized as a shared object on deployment.</p>
+      <div class="contract-sig">
+        <code>public fun register(registry, name, agent_type, strategy_module, wallet_cap, ctx): AgentEntry</code>
+        <code>public fun total_deployed(registry): u64</code>
+        <code>public fun is_owner(entry, addr): bool</code>
+      </div>
+    </div>
+    <div class="contract-card">
+      <h5>agent_wallet.move <span>guardrails</span></h5>
+      <p>Per-agent wallet with programmable constraints: max TX value, daily spend limit, whitelisted action types. Only the capability holder can authorize agent actions. Supports pause/resume and guardrail updates.</p>
+      <div class="contract-sig">
+        <code>public fun create(max_tx, daily_limit, allowed_actions, enc_hash, ctx): (Cap, Wallet)</code>
+        <code>public fun agent_transfer(cap, wallet, amount, recipient, action_type, ctx): Coin</code>
+        <code>public fun update_guardrails(cap, wallet, max_tx, daily_limit, actions)</code>
+      </div>
+    </div>
+    <div class="contract-card">
+      <h5>agent_factory.move <span>1-click</span></h5>
+      <p>Creates wallet + registers agent + funds + sets guardrails in one Programmable Transaction Block. Emits AgentDeployed event. Designed for the one-click deploy flow from the frontend.</p>
+      <div class="contract-sig">
+        <code>public fun deploy(name, type, strategy, max_tx, daily, actions, funding, enc_hash, ctx)</code>
+      </div>
+    </div>
+    <div class="contract-card">
+      <h5>action_log.move <span>audit</span></h5>
+      <p>Append-only log with Walrus blob IDs and Sui TXN digests. Each entry is content-addressed. Supports sealing batches to Walrus for permanent storage. Every agent decision is recorded here.</p>
+      <div class="contract-sig">
+        <code>public fun log_action(log, agent_id, action_type, amount, target, ts, walrus_id, txn, ok)</code>
+        <code>public fun seal_batch(log, walrus_blob_id)</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="api-section">
+    <h4>Example Strategies</h4>
+    <div class="contract-card">
+      <h5>yield_agent.move <span>lp</span></h5>
+      <p>Yield optimization strategy: pool scanning, APR comparison, rebalancing thresholds (2% minimum edge), compound logic. Configurable min APR and max single-pool exposure (50% default). Kelly-like allocation across pools.</p>
+    </div>
+    <div class="contract-card">
+      <h5>trader_agent.move <span>arbitrage</span></h5>
+      <p>Arbitrage strategy: order book analysis, stop-loss/take-profit triggers (5%/10%), pair whitelisting, position tracking with signed PnL. 0.5% minimum profit threshold after fees.</p>
+    </div>
+    <div class="contract-card">
+      <h5>prediction_agent.move <span>predict</span></h5>
+      <p>Prediction market strategy: Kelly criterion sizing, confidence thresholds (60% minimum), edge detection (5% minimum over market-implied). First framework building on DeepBook Predict since May 2026 launch.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

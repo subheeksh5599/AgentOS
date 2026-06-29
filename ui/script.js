@@ -1,30 +1,7 @@
 // ═══════════════════════════════════════════════════
 //  AGENTOS editorial-interference
-//  Scroll-driven hero shatter · custom cursor · reveals
+//  Scroll-driven hero shatter · reveals · deploy
 // ═══════════════════════════════════════════════════
-
-// ── Custom cursor ──
-const cursor = document.getElementById("cursor");
-let mx = 0, my = 0, cx = 0, cy = 0;
-
-document.addEventListener("pointermove", e => { mx = e.clientX; my = e.clientY; });
-
-function animateCursor() {
-  cx += (mx - cx) * 0.18;
-  cy += (my - cy) * 0.18;
-  if (cursor) cursor.style.transform = `translate(${cx - 14}px, ${cy - 14}px)`;
-  requestAnimationFrame(animateCursor);
-}
-requestAnimationFrame(animateCursor);
-
-document.querySelectorAll("a, button, .cta, input, select").forEach(el => {
-  el.addEventListener("mouseenter", () => cursor?.classList.add("drag"));
-  el.addEventListener("mouseleave", () => cursor?.classList.remove("drag"));
-});
-document.querySelectorAll(".strat, .prim, .pipe-step, .shard, .ishard, .image-shatter").forEach(el => {
-  el.addEventListener("mouseenter", () => cursor?.classList.add("drag"));
-  el.addEventListener("mouseleave", () => cursor?.classList.remove("drag"));
-});
 
 // ── Scroll-driven hero shatter ──
 const heroShatter = document.getElementById("hero-shatter");

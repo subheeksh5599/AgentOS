@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4f1e8" />
+  <link rel="preconnect" href="http://fonts.googleapis.com" />
+  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/subpage.css" />
+  <title>API — AgentOS</title>
+</head>
+<body>
+
+<header class="subnav">
+  <a href="index.html" class="subnav-word">← AGENT<span class="accent">OS</span></a>
+  <a href="contracts.html">contracts</a>
+  <a href="dashboard.html">dashboard</a>
+  <span class="subnav-label">api</span>
+</header>
+
+<section class="spread">
+  <div class="spread-gutter"><span class="folio">api</span></div>
+  <h2 class="spread-head">API reference.<br>REST + SSE runtime.</h2>
+  <div class="api-section">
+    <h4>Runtime</h4>
+    <div class="api-endpoint">
+      <div class="ep-method">GET</div>
+      <div class="ep-path">/api/runtime/agents</div>
+      <div class="ep-desc">List all running agents with status, type, and poll interval.</div>
+    </div>
+    <div class="api-endpoint">
+      <div class="ep-method">GET</div>
+      <div class="ep-path">/api/runtime/events</div>
+      <div class="ep-desc">SSE stream of live agent decisions, TXNs, errors, and guardrail hits. text/event-stream.</div>
+    </div>
+    <div class="api-endpoint">
+      <div class="ep-method">GET</div>
+      <div class="ep-path">/api/runtime/history?limit=50</div>
+      <div class="ep-desc">Recent event history as JSON. Optional query param limit (default 50).</div>
+    </div>
+  </div>
+  <div class="api-section">
+    <h4>State</h4>
+    <div class="api-endpoint">
+      <div class="ep-method">GET</div>
+      <div class="ep-path">/api/health</div>
+      <div class="ep-desc">Service health check. Returns service name and version.</div>
+    </div>
+    <div class="api-endpoint">
+      <div class="ep-method">GET</div>
+      <div class="ep-path">/api/state</div>
+      <div class="ep-desc">Full system state: nodes, pools, capacity, transactions, chain verification, agent status.</div>
+    </div>
+  </div>
+  <div class="api-section">
+    <h4>Console</h4>
+    <div class="api-endpoint">
+      <div class="ep-method">POST</div>
+      <div class="ep-path">/api/console</div>
+      <div class="ep-desc">Execute a CLI command on the runtime. Supported: status, pools, nodes, store &lt;mb&gt;, txns, agents, scan, health.</div>
+    </div>
+  </div>
+  <div class="api-section">
+    <h4>Transactions</h4>
+    <div class="api-endpoint">
+      <div class="ep-method">GET</div>
+      <div class="ep-path">/api/transactions</div>
+      <div class="ep-desc">List all transactions in the SHA-256 hash-chained ledger.</div>
+    </div>
+    <div class="api-endpoint">
+      <div class="ep-method">POST</div>
+      <div class="ep-path">/api/transactions</div>
+      <div class="ep-desc">Submit a new transaction. Auto-allocates to least-used storage node. Body: { op: "store", size_gb: 1.0 }</div>
+    </div>
+  </div>
+  <div class="api-section">
+    <h4>Pools & Nodes</h4>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/pools</div><div class="ep-desc">List all storage pools with region, capacity, usage.</div></div>
+    <div class="api-endpoint"><div class="ep-method">POST</div><div class="ep-path">/api/pools</div><div class="ep-desc">Create a new storage pool. Body: { name, region, capacity_tb, tier }</div></div>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/nodes?pool_id=</div><div class="ep-desc">List storage nodes, optionally filtered by pool_id.</div></div>
+  </div>
+</section>
+
+</body>
+</html>

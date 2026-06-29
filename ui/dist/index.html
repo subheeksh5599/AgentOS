@@ -1,254 +1,273 @@
 <!DOCTYPE html>
-<html lang="en" data-world="cinematic-dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#020303" />
+  <meta name="theme-color" content="#f4f1e8" />
   <link rel="preconnect" href="http://fonts.googleapis.com" />
   <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <title>AgentOS — OS for On-Chain AI Agents</title>
-  <script type="module" crossorigin src="/assets/main-BwOma9l1.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/styles-ClCSC8Xi.js">
-  <link rel="stylesheet" crossorigin href="/assets/styles-D9kAJ9Ga.css">
+  <script type="module" crossorigin src="/assets/index-D1EnzkVy.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BnOgxqlC.css">
 </head>
-<body class="is-loading">
+<body>
 
-<!-- ═══ Loader Ritual ═══ -->
-<div class="loader" id="loader">
-  <div class="loader-core">
-    <div class="loader-line"></div>
-    <div class="loader-count" id="loader-count">00</div>
-    <div class="loader-label">AGENTOS <span class="loader-build">v1.0 // Sui Testnet</span></div>
-  </div>
-</div>
+<div class="cursor" id="cursor"><span class="cursor-label">drag</span></div>
 
-<!-- ═══ System Status Strip ═══ -->
-<div class="status-strip" id="status-strip">
-  <span class="ss-item" id="ss-frame">FRAME 0000</span>
-  <span class="ss-sep">|</span>
-  <span class="ss-item" id="ss-scroll">SCROLL 00%</span>
-  <span class="ss-sep">|</span>
-  <span class="ss-item" id="ss-time">UTC 00:00:00</span>
-  <span class="ss-sep">|</span>
-  <span class="ss-item" id="ss-agents">AGENTS 0</span>
-  <span class="ss-sep">|</span>
-  <span class="ss-item ss-right">BUILD 7d77038a</span>
-</div>
-
-<!-- ═══ Nav ═══ -->
 <header class="nav">
-  <div class="nav-brand">AGENT<span class="accent">OS</span></div>
+  <a href="#" class="nav-word">AGENT<span class="accent">OS</span></a>
   <nav class="nav-links">
-    <a href="#agents">agents</a>
-    <a href="#primitives">primitives</a>
+    <a href="#what">what</a>
+    <a href="#how">how</a>
     <a href="#deploy">deploy</a>
-    <a href="#pipeline">pipeline</a>
-    <a href="dashboard.html" class="nav-dashboard">dashboard →</a>
+    <a href="#stack">stack</a>
+    <a href="dashboard.html" class="nav-dash">dashboard →</a>
   </nav>
-  <button class="login-btn" id="login-btn" onclick="toggleLogin()">
-    <span class="login-icon">○</span>
-    <span id="login-text">connect</span>
-  </button>
 </header>
 
-<!-- ═══ Hero ═══ -->
-<section class="hero">
-  <canvas class="shader-canvas" id="shader"></canvas>
-  <div class="hero-content">
-    <div class="hero-chip">SUI AGENTATHON 2026</div>
-    <h1>
-      <span class="scramble" data-text="OS">OS</span> for
-      <span class="gradient scramble" data-text="On-Chain AI Agents">On-Chain AI Agents</span>
+<section class="hero" id="hero">
+  <div class="hero-text">
+    <div class="hero-label">Sui Agentathon 2026</div>
+    <h1 class="hero-headline">
+      <span class="line">An operating system</span>
+      <span class="line">for <span class="accent-word">on-chain AI</span></span>
+      <span class="line">agents.</span>
     </h1>
-    <p class="hero-sub">Deploy autonomous agents with Sui wallets, verifiable execution via Walrus, and programmable guardrails. One click.</p>
-    <div class="hero-actions">
-      <button class="btn-primary magnetic" onclick="scrollToDeploy()">Deploy an Agent</button>
-      <button class="btn-secondary" onclick="window.open('https://github.com/subheeksh5599/AgentOS','_blank')">View Contracts</button>
-    </div>
-    <div class="hero-telemetry" id="hero-telemetry">
-      <div class="tel-row"><span class="tel-label">NODES</span><span class="tel-val" id="tel-nodes">12</span></div>
-      <div class="tel-row"><span class="tel-label">REGIONS</span><span class="tel-val" id="tel-regions">3</span></div>
-      <div class="tel-row"><span class="tel-label">PRIMITIVES</span><span class="tel-val" id="tel-primitives">7</span></div>
-      <div class="tel-row"><span class="tel-label">MODEL</span><span class="tel-val" id="tel-model">LLAMA 3.3 70B</span></div>
-    </div>
   </div>
-  <div class="scroll-hint" id="scroll-hint">
-    <span class="scroll-hint-line"></span>
+  <div class="hero-shatter" id="hero-shatter">
+    <div class="shard shard-1">∿</div>
+    <div class="shard shard-2">◈</div>
+    <div class="shard shard-3">◆</div>
+    <div class="shard shard-4">◇</div>
+    <div class="shard shard-5">◊</div>
+    <div class="shard shard-6">⬙</div>
   </div>
-</section>
-
-<!-- ═══ Agent Types ═══ -->
-<section class="section" id="agents">
-  <div class="section-label">01 — agents</div>
-  <h2 class="section-title">Three autonomous strategies.<br><span class="gradient">One transaction block.</span></h2>
-  <div class="content-ladder" id="agent-ladder">
-    <div class="ladder-rung reveal-up">
-      <div class="rung-num">01</div>
-      <div class="rung-body">
-        <h3>Yield Agent <span class="rung-chip">DEEPBOOK LP</span></h3>
-        <p>Scans DeepBook pools for optimal APR. Rebalances daily when edge exceeds 2%. Auto-compounds rewards. Max single-pool exposure capped at 50%.</p>
-        <button class="btn-deploy magnetic" onclick="deployAgent('yield')">Deploy</button>
-      </div>
-    </div>
-    <div class="ladder-rung reveal-up">
-      <div class="rung-num">02</div>
-      <div class="rung-body">
-        <h3>Trader Agent <span class="rung-chip">SPOT + MARGIN</span></h3>
-        <p>Arbitrage across DeepBook Spot and Margin order books. Stop-loss at 5%, take-profit at 10%. Whitelisted trading pairs. 0.5% minimum profit threshold after fees.</p>
-        <button class="btn-deploy magnetic" onclick="deployAgent('trader')">Deploy</button>
-      </div>
-    </div>
-    <div class="ladder-rung reveal-up">
-      <div class="rung-num">03</div>
-      <div class="rung-body">
-        <h3>Prediction Agent <span class="rung-chip">DEEPBOOK PREDICT</span></h3>
-        <p>Trades DeepBook Predict markets using Kelly criterion sizing. Only bets when model edge exceeds 5% over market-implied probability. 60% minimum confidence threshold.</p>
-        <button class="btn-deploy magnetic" onclick="deployAgent('prediction')">Deploy</button>
-      </div>
-    </div>
+  <div class="hero-aside">
+    <p>Deploy autonomous agents with Sui wallets, verifiable execution via Walrus, and programmable guardrails. One click.</p>
+    <a href="#deploy" class="cta">Deploy an agent →</a>
+  </div>
+  <div class="hero-stat">
+    <div class="stat-big">7</div>
+    <div class="stat-cap">Sui primitives in every agent's stack</div>
   </div>
 </section>
 
-<!-- ═══ Sui Primitives ═══ -->
-<section class="section dark-section" id="primitives">
-  <div class="section-label">02 — primitives</div>
-  <h2 class="section-title">Seven Sui primitives<br><span class="gradient">in every agent's stack.</span></h2>
-  <div class="content-ladder">
-    <div class="ladder-rung reveal-up"><div class="rung-num">01</div><div class="rung-body"><h3>Walrus <span class="rung-chip">VERIFIABILITY</span></h3><p>Content-addressed blobs for agent memory, execution logs, and model configs. Every decision has an immutable, verifiable audit trail.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">02</div><div class="rung-body"><h3>Seal <span class="rung-chip">ENCRYPTION</span></h3><p>Encrypted agent state and private keys at rest. Agents hold funds without exposing keys on-chain. HSM-grade security for autonomous wallets.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">03</div><div class="rung-body"><h3>DeepBook <span class="rung-chip">MARKETS</span></h3><p>Shared liquidity across Spot, Margin, and Predict. Agents trade via a unified interface. First framework building on Predict since its May 2026 launch.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">04</div><div class="rung-body"><h3>zkLogin <span class="rung-chip">IDENTITY</span></h3><p>Google OAuth derives a Sui address. No seed phrase. No wallet extension. Agent identity is tied to a real user, not a floating keypair.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">05</div><div class="rung-body"><h3>Sponsored TXs <span class="rung-chip">GASLESS</span></h3><p>Agents execute autonomously without holding SUI for gas. Critical for true set-and-forget agent operation.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">06</div><div class="rung-body"><h3>Programmable TX Blocks <span class="rung-chip">ATOMICITY</span></h3><p>Multi-step strategies in one atomic transaction: swap → stake → log → compound. No partial execution. No MEV exposure between steps.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">07</div><div class="rung-body"><h3>Google AP2 <span class="rung-chip">PAYMENTS</span></h3><p>Agent-to-agent payments on Sui — Google's launch partner for the AP2 protocol. Agents pay agents. Machines transact with machines.</p></div></div>
+<section class="spread" id="what">
+  <div class="spread-gutter">
+    <span class="folio">01</span>
+  </div>
+  <h2 class="spread-head">Three autonomous strategies.<br>One transaction block.</h2>
+  <div class="spread-body">
+    <div class="strat" id="strat-1">
+      <span class="strat-num">I</span>
+      <h3>Yield Agent</h3>
+      <p>Scans DeepBook pools for optimal APR. Rebalances daily when edge exceeds 2%. Auto-compounds rewards. Max 50% single-pool exposure. Programmable guardrails enforced on-chain.</p>
+      <button class="cta" onclick="document.getElementById('deploy').scrollIntoView({behavior:'smooth'})">Deploy</button>
+    </div>
+    <div class="strat" id="strat-2">
+      <span class="strat-num">II</span>
+      <h3>Trader Agent</h3>
+      <p>Arbitrage across DeepBook Spot and Margin order books. Stop-loss at 5%, take-profit at 10%. Whitelisted trading pairs via on-chain guardrails. 0.5% minimum profit threshold after fees.</p>
+      <button class="cta" onclick="document.getElementById('deploy').scrollIntoView({behavior:'smooth'})">Deploy</button>
+    </div>
+    <div class="strat" id="strat-3">
+      <span class="strat-num">III</span>
+      <h3>Prediction Agent</h3>
+      <p>Trades DeepBook Predict markets using Kelly criterion sizing. Only bets when model edge exceeds 5% over market-implied probability. 60% minimum confidence threshold. First framework building on Predict since May 2026.</p>
+      <button class="cta" onclick="document.getElementById('deploy').scrollIntoView({behavior:'smooth'})">Deploy</button>
+    </div>
+  </div>
+  <div class="spread-bleed">
+    <div class="bleed-text">DEEPBOOK · SPOT · MARGIN · PREDICT · DEEPBOOK · SPOT · MARGIN · PREDICT ·</div>
   </div>
 </section>
 
-<!-- ═══ Deploy ═══ -->
-<section class="section" id="deploy">
-  <div class="section-label">03 — deploy</div>
-  <h2 class="section-title">One click.<br><span class="gradient">The agent is live.</span></h2>
-  <div class="deploy-container">
-    <div class="deploy-panel">
-      <div class="deploy-panel-header"><h3>Agent Configuration</h3></div>
-      <div class="deploy-form">
-        <label>Type</label>
-        <select id="agent-type" class="deploy-select">
-          <option value="yield">Yield Agent — DeepBook LP</option>
-          <option value="trader">Trader Agent — Spot + Margin</option>
-          <option value="prediction">Prediction Agent — Predict</option>
+<section class="spread" id="how">
+  <div class="spread-gutter">
+    <span class="folio">02</span>
+  </div>
+  <h2 class="spread-head">How an agent<br>thinks.</h2>
+  <div class="pipeline">
+    <div class="pipe-step reveal">
+      <div class="pipe-num">01</div>
+      <div class="pipe-content">
+        <h4>Fetch State <span>Sui RPC</span></h4>
+        <p>Agent queries Sui testnet for live pool APRs, order book spreads, and prediction market odds. Real on-chain data only.</p>
+      </div>
+    </div>
+    <div class="pipe-step reveal">
+      <div class="pipe-num">02</div>
+      <div class="pipe-content">
+        <h4>LLM Reason <span>Groq · Llama 3.3 70B</span></h4>
+        <p>State is sent to Groq with the agent's strategy prompt. The LLM returns a structured JSON decision — which pool, how much, at what confidence.</p>
+      </div>
+    </div>
+    <div class="pipe-step reveal">
+      <div class="pipe-num">03</div>
+      <div class="pipe-content">
+        <h4>Guardrail Check <span>On-Chain</span></h4>
+        <p>Decision validated against programmable guardrails: max TX value, daily spend limit, allowed action types. Blocked actions are logged, never executed.</p>
+      </div>
+    </div>
+    <div class="pipe-step reveal">
+      <div class="pipe-num">04</div>
+      <div class="pipe-content">
+        <h4>Execute <span>Sponsored TX</span></h4>
+        <p>Valid decisions are packaged into a Programmable Transaction Block and submitted. Gas is sponsored — the agent pays nothing.</p>
+      </div>
+    </div>
+    <div class="pipe-step reveal">
+      <div class="pipe-num">05</div>
+      <div class="pipe-content">
+        <h4>Log to Walrus <span>Immutable</span></h4>
+        <p>Every decision — action, reasoning, hash, timestamp — is uploaded to Walrus as a content-addressed blob. Verifiable, tamper-proof, permanent.</p>
+      </div>
+    </div>
+  </div>
+  <div class="spread-image-block">
+    <div class="image-shatter">
+      <div class="ishard ishard-1"></div>
+      <div class="ishard ishard-2"></div>
+      <div class="ishard ishard-3"></div>
+      <div class="ishard ishard-4"></div>
+    </div>
+    <div class="image-caption">Every agent decision is a shard of verifiable execution. Walrus binds them together.</div>
+  </div>
+</section>
+
+<section class="spread" id="deploy">
+  <div class="spread-gutter">
+    <span class="folio">03</span>
+  </div>
+  <h2 class="spread-head">Deploy an agent.<br>One click.</h2>
+  <div class="deploy-block">
+    <div class="deploy-form">
+      <div class="field">
+        <label>Agent type</label>
+        <select id="agent-type">
+          <option value="yield">Yield Agent — DeepBook LP optimization</option>
+          <option value="trader">Trader Agent — Spot + Margin arbitrage</option>
+          <option value="prediction">Prediction Agent — Predict markets</option>
         </select>
-        <label>Name</label>
-        <input type="text" id="agent-name" class="deploy-input" value="Alpha Yield" />
-        <label>Max TX (SUI)</label>
-        <input type="number" id="max-tx" class="deploy-input" value="100" min="1" />
-        <label>Daily Limit (SUI)</label>
-        <input type="number" id="daily-limit" class="deploy-input" value="500" min="1" />
-        <label>Initial Funding (SUI)</label>
-        <input type="number" id="initial-fund" class="deploy-input" value="100" min="1" />
-        <label>Allowed Actions</label>
-        <div class="checkbox-group">
-          <label class="checkbox-label"><input type="checkbox" checked disabled>Transfer</label>
-          <label class="checkbox-label"><input type="checkbox" checked>Swap</label>
-          <label class="checkbox-label"><input type="checkbox" checked>Stake</label>
-          <label class="checkbox-label"><input type="checkbox" checked>LP Deposit</label>
-          <label class="checkbox-label"><input type="checkbox">LP Withdraw</label>
-          <label class="checkbox-label"><input type="checkbox">Predict</label>
-        </div>
-        <button class="btn-deploy-lg magnetic" onclick="handleDeploy()" id="deploy-btn">Deploy Agent</button>
       </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="agent-name" value="Alpha Yield" />
+        </div>
+        <div class="field">
+          <label>Initial funding (SUI)</label>
+          <input type="number" id="initial-fund" value="100" min="1" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Max TX (SUI)</label>
+          <input type="number" id="max-tx" value="100" min="1" />
+        </div>
+        <div class="field">
+          <label>Daily limit (SUI)</label>
+          <input type="number" id="daily-limit" value="500" min="1" />
+        </div>
+      </div>
+      <button class="cta" onclick="handleDeploy()" id="deploy-btn">Deploy Agent</button>
+    </div>
+    <div class="deploy-proof">
+      <div class="proof-line proof-label">Guardrail enforcement</div>
+      <div class="proof-line">max_tx_value <span>100 SUI</span></div>
+      <div class="proof-line">daily_spend_limit <span>500 SUI</span></div>
+      <div class="proof-line">allowed_actions <span>swap, stake, lp_deposit</span></div>
+      <div class="proof-line">stop_loss <span>5%</span></div>
+      <div class="proof-line proof-label" style="margin-top:24px">Verifiability</div>
+      <div class="proof-line">execution_logs <span>Walrus blob</span></div>
+      <div class="proof-line">model_configs <span>Walrus blob</span></div>
+      <div class="proof-line">private_keys <span>Seal encrypted</span></div>
+      <div class="proof-line">identity <span>zkLogin (Google OAuth)</span></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ Pipeline ═══ -->
-<section class="section dark-section" id="pipeline">
-  <div class="section-label">04 — pipeline</div>
-  <h2 class="section-title">How an agent <span class="gradient">thinks.</span></h2>
-  <div class="content-ladder">
-    <div class="ladder-rung reveal-up"><div class="rung-num">01</div><div class="rung-body"><h3>Fetch State <span class="rung-chip">SUI RPC</span></h3><p>Agent queries Sui testnet for live pool APRs, order book spreads, and prediction market odds. Real on-chain data only.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">02</div><div class="rung-body"><h3>LLM Reason <span class="rung-chip">GROQ — LLAMA 3.3 70B</span></h3><p>State is sent to Groq with the agent's strategy prompt. The LLM returns a structured JSON decision — which pool, how much, at what confidence.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">03</div><div class="rung-body"><h3>Guardrail Check <span class="rung-chip">ON-CHAIN</span></h3><p>Decision is validated against programmable guardrails: max TX value, daily spend limit, allowed action types. Blocked actions are logged, never executed.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">04</div><div class="rung-body"><h3>Execute <span class="rung-chip">SPONSORED TX</span></h3><p>Valid decisions are packaged into a Programmable Transaction Block and submitted to Sui testnet. Gas is sponsored — the agent pays nothing.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">05</div><div class="rung-body"><h3>Log to Walrus <span class="rung-chip">IMMUTABLE</span></h3><p>Every decision — action, reasoning, hash, timestamp — is uploaded to Walrus as a content-addressed blob. Verifiable, tamper-proof, permanent.</p></div></div>
+<section class="spread" id="stack">
+  <div class="spread-gutter">
+    <span class="folio">04</span>
+  </div>
+  <h2 class="spread-head">Seven primitives.<br>Every agent.</h2>
+  <div class="primitives">
+    <div class="prim reveal">
+      <h5>Walrus</h5>
+      <p>Content-addressed blobs for agent memory, execution logs, model configs. Immutable, verifiable audit trail.</p>
+    </div>
+    <div class="prim reveal">
+      <h5>Seal</h5>
+      <p>Encrypted agent state and private keys at rest. Agents hold funds without exposing keys on-chain.</p>
+    </div>
+    <div class="prim reveal">
+      <h5>DeepBook</h5>
+      <p>Shared liquidity across Spot, Margin, Predict. Agents trade via unified interface. First framework building on Predict.</p>
+    </div>
+    <div class="prim reveal">
+      <h5>zkLogin</h5>
+      <p>Google OAuth derives a Sui address. No seed phrase. No wallet extension. Agent identity tied to a real user.</p>
+    </div>
+    <div class="prim reveal">
+      <h5>Sponsored TXs</h5>
+      <p>Gasless agent execution. Agents operate autonomously without holding SUI for gas.</p>
+    </div>
+    <div class="prim reveal">
+      <h5>Programmable TX Blocks</h5>
+      <p>Multi-step strategies in one atomic transaction. No partial execution. No MEV exposure between steps.</p>
+    </div>
+    <div class="prim reveal">
+      <h5>Google AP2</h5>
+      <p>Agent-to-agent payments on Sui. Google's launch partner for the AP2 protocol. Machines transact with machines.</p>
+    </div>
   </div>
 </section>
 
-<!-- ═══ Architecture ═══ -->
-<section class="section" id="architecture">
-  <div class="section-label">05 — architecture</div>
-  <h2 class="section-title">Move contracts.<br><span class="gradient">Seven modules.</span></h2>
-  <div class="content-ladder">
-    <div class="ladder-rung reveal-up"><div class="rung-num">01</div><div class="rung-body"><h3>agent_registry.move <span class="rung-chip">DISCOVERY</span></h3><p>Central directory for all deployed agents. Owner binding, category indexing, active/paused toggle. Emits AgentRegistered events for off-chain indexing.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">02</div><div class="rung-body"><h3>agent_wallet.move <span class="rung-chip">GUARDRAILS</span></h3><p>Per-agent wallet with configurable constraints: max TX value, daily spend limit, whitelisted action types. Only the capability holder can authorize agent actions.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">03</div><div class="rung-body"><h3>agent_factory.move <span class="rung-chip">1-CLICK DEPLOY</span></h3><p>Creates wallet + registers agent + funds + sets guardrails in one Programmable Transaction Block. Emits AgentDeployed event.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">04</div><div class="rung-body"><h3>action_log.move <span class="rung-chip">AUDIT TRAIL</span></h3><p>Append-only log with Walrus blob IDs and Sui TXN digests. Each entry is content-addressed. Can be sealed to a Walrus batch for permanent storage.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">05</div><div class="rung-body"><h3>yield_agent.move <span class="rung-chip">EXAMPLE</span></h3><p>Yield optimization strategy: pool scanning, APR comparison, rebalancing thresholds, compound logic. Configurable min APR and max single-pool exposure.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">06</div><div class="rung-body"><h3>trader_agent.move <span class="rung-chip">EXAMPLE</span></h3><p>Arbitrage strategy: order book analysis, stop-loss/take-profit triggers, pair whitelisting, position tracking with signed PnL.</p></div></div>
-    <div class="ladder-rung reveal-up"><div class="rung-num">07</div><div class="rung-body"><h3>prediction_agent.move <span class="rung-chip">EXAMPLE</span></h3><p>Prediction market strategy: Kelly criterion sizing, confidence thresholds, edge detection, auto-compound winnings to next market.</p></div></div>
-  </div>
-</section>
-
-<!-- ═══ Footer ═══ -->
-<footer class="footer">
-  <div class="footer-content">
-    <div class="footer-col">
-      <div class="footer-label">Contracts</div>
+<footer class="colophon">
+  <div class="col-grid">
+    <div class="col-block">
+      <span class="col-label">Contracts</span>
       <a href="#">agent_registry.move</a>
       <a href="#">agent_wallet.move</a>
       <a href="#">agent_factory.move</a>
       <a href="#">action_log.move</a>
     </div>
-    <div class="footer-col">
-      <div class="footer-label">Runtime</div>
-      <a href="#">llm.py — Groq</a>
-      <a href="#">sui_client.py — RPC</a>
-      <a href="#">walrus_client.py — Logs</a>
-      <a href="#">api.py — SSE Stream</a>
+    <div class="col-block">
+      <span class="col-label">Runtime</span>
+      <a href="#">llm.py · Groq</a>
+      <a href="#">sui_client.py · RPC</a>
+      <a href="#">walrus_client.py · Logs</a>
+      <a href="#">api.py · SSE Stream</a>
     </div>
-    <div class="footer-col">
-      <div class="footer-label">Agents</div>
+    <div class="col-block">
+      <span class="col-label">Agents</span>
       <a href="#">yield_agent.py</a>
       <a href="#">trader_agent.py</a>
       <a href="#">prediction_agent.py</a>
+      <a href="#">event_bus.py</a>
     </div>
-    <div class="footer-col">
-      <div class="footer-label">Links</div>
+    <div class="col-block">
+      <span class="col-label">Links</span>
       <a href="https://github.com/subheeksh5599/AgentOS">GitHub</a>
       <a href="dashboard.html">Dashboard</a>
       <a href="https://sui.io">Sui</a>
       <a href="https://groq.com">Groq</a>
     </div>
   </div>
-  <div class="footer-bottom">
-    <span>AgentOS — Built for Sui Agentathon 2026. Style world: cinematic-dark. Signature mechanic: live telemetry readout. Apache 2.0.</span>
+  <div class="col-bottom">
+    <span>AgentOS · Sui Agentathon 2026 · Style world: editorial-interference · Signature mechanic: scroll-driven hero shatter · Apache 2.0</span>
   </div>
 </footer>
 
-<!-- ═══ zkLogin Modal ═══ -->
-<div class="modal-overlay" id="login-modal" aria-hidden="true">
+<!-- success modal -->
+<div class="modal-overlay" id="success-modal">
   <div class="modal-card">
-    <button class="modal-close" onclick="toggleLogin()">&times;</button>
-    <h3>Connect to AgentOS</h3>
-    <p class="modal-sub">Sign in with Google to create your agent identity on Sui. Your Google account derives a Sui address via zkLogin.</p>
-    <button class="btn-google magnetic" onclick="handleZkLogin()">
-      <span class="google-icon">G</span> Sign in with Google (zkLogin)
-    </button>
-    <div class="modal-divider"><span>or</span></div>
-    <button class="btn-sui magnetic" onclick="handleSuiWallet()">Connect Sui Wallet</button>
-    <p class="modal-note">No seed phrase. No wallet extension. One click.</p>
-  </div>
-</div>
-
-<!-- ═══ Deploy Success Modal ═══ -->
-<div class="modal-overlay" id="success-modal" aria-hidden="true">
-  <div class="modal-card">
-    <button class="modal-close" onclick="closeSuccess()">&times;</button>
-    <div class="success-icon">✓</div>
+    <button class="modal-close" onclick="document.getElementById('success-modal').classList.remove('is-open')">&times;</button>
     <h3>Agent Deployed</h3>
     <div class="success-details" id="success-details"></div>
-    <button class="btn-primary magnetic" onclick="window.location.href='dashboard.html'">Open Dashboard</button>
+    <button class="cta" onclick="window.location.href='dashboard.html'">Open Dashboard</button>
   </div>
 </div>
 

@@ -1,27 +1,79 @@
-# AgentOS
+# AgentOS — OS for On-Chain AI Agents
 
-Autonomous cloud operations platform. 4 agents manage storage, security, monitoring, and ops across a 3-region topology. Nimbus Grid is the UI.
+Move-based framework for deploying autonomous AI agents with Sui wallets, verifiable execution, and programmable guardrails.
 
 ## Stack
 
 | Layer | What |
 |-------|------|
-| API | FastAPI (Python) |
-| UI | vanilla HTML/CSS/JS, Vite |
-| Agents | async message bus, room-based pub/sub |
-| TXNs | SHA-256 hash-chained ledger |
-| Deploy | Vercel serverless + static |
+| Contracts | Sui Move (7 modules) |
+| Identity | zkLogin (Google OAuth → Sui address) |
+| Execution | DeepBook Spot / Margin / Predict |
+| Verifiability | Walrus (logs, config, model params) |
+| Encryption | Seal (agent private keys at rest) |
+| Gas | Sponsored TXs (gasless agent actions) |
+| Atomicity | Programmable Transaction Blocks |
+| Payments | Google AP2 (agent-to-agent) |
+| Frontend | vanilla HTML/CSS/JS, Vite |
+| Deploy | Vercel static + serverless API |
 
-## Run locally
+## Move Contracts
+
+```
+move/sources/
+├── agent_registry.move      Agent discovery & metadata
+├── agent_wallet.move        Wallet with programmable guardrails
+├── agent_factory.move       1-click deploy in a PTB
+├── action_log.move          Verifiable audit trail → Walrus
+└── examples/
+    ├── yield_agent.move     DeepBook LP optimization
+    ├── trader_agent.move    Spot + Margin arbitrage
+    └── prediction_agent.move   DeepBook Predict markets
+```
+
+## 3 Example Agents
+
+**Yield Agent** — scans DeepBook pools for best APR, rebalances daily, auto-compounds.
+
+**Trader Agent** — arbitrage across Spot + Margin, stop-loss/take-profit, pair whitelisting.
+
+**Prediction Agent** — trades DeepBook Predict markets using Kelly criterion sizing, edge detection.
+
+## 30-Second Demo
+
+1. Login via Google (zkLogin)
+2. Deploy a Yield Agent with 1 click
+3. Agent finds best DeepBook yields, rebalances daily
+4. All actions verifiable on Walrus
+
+## Why It Wins
+
+1. Dev tooling × AI agents — sell shovels in the fastest-growing category
+2. Nobody's built the agent OS yet. First mover.
+3. Naturally viral — developers become evangelists
+4. 3 demo-ready agents covering Spot, Margin, Predict
+5. First to build on DeepBook Predict (launched May 2026)
+
+## Sui Primitives Used
+
+| Primitive | Use |
+|-----------|-----|
+| Walrus | Verifiable agent memory, logs, model configs |
+| Seal | Encrypted agent state + private keys |
+| DeepBook | Spot, Margin, Predict — shared liquidity |
+| zkLogin | Agent identity tied to real users |
+| Sponsored TXs | Gasless autonomous agent actions |
+| PTBs | Atomic multi-step strategies |
+| Google AP2 | Agent-to-agent payments |
+
+## Run Locally
 
 ```bash
 cd ui && npm install && npm run build && cd ..
 uv venv && uv pip install -r requirements.txt
 source .venv/bin/activate
-python -m uvicorn main:app --host 0.0.0.0 --port 8420 --reload
+python -m uvicorn main:app --host 0.0.0.0 --port 8420
 ```
-
-Open `http://localhost:8420`. The CLI in the hero console talks directly to the agents. Try `store 500`, `status`, `scan`.
 
 ## Deploy
 
@@ -29,45 +81,6 @@ Open `http://localhost:8420`. The CLI in the hero console talks directly to the 
 vercel --prod
 ```
 
-Static UI from `ui/dist/`, API routes via `api/index.py` as serverless functions. No database, no external services — everything is in-memory.
+Live at [agentos-sepia.vercel.app](https://agentos-sepia.vercel.app)
 
-## API
-
-```
-GET  /api/health
-GET  /api/state
-GET  /api/pools
-POST /api/pools
-GET  /api/nodes
-GET  /api/transactions
-POST /api/transactions
-POST /api/console        { "command": "status" }
-GET  /api/events/history  ?room=grid-ops&limit=50
-```
-
-## Agents
-
-| Agent | Role |
-|-------|------|
-| StorageAgent | pool provisioning, allocation |
-| SecurityAgent | encryption audit, threat scan |
-| MonitorAgent | node health, latency, alerts |
-| OpsAgent | CLI bridge, transaction execution |
-
-Agents communicate over a room-based message bus and record everything to an append-only audit trail.
-
-## Architecture
-
-```
-agentos/
-├── api/index.py        # Vercel ASGI entry
-├── apiroutes.py        # all REST endpoints
-├── main.py             # local dev (uvicorn + UI serving + live agents)
-├── core/
-│   ├── models.py       # Pydantic models
-│   ├── storage.py      # 3 pools, 12 nodes, in-memory + JSON
-│   ├── transactions.py # SHA-256 hash chain
-│   └── message_bus.py  # room-based pub/sub
-├── agents/             # 4 agent implementations
-└── ui/                 # Nimbus Grid frontend
-```
+Built for Sui Agentathon 2026.

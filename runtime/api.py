@@ -69,6 +69,13 @@ async def event_history(limit: int = 50):
 
 @router.get("/agents")
 async def agent_status():
+    from runtime.sui_client import get_wallet_state, get_network_status, WALLET_ADDRESS
+    try:
+        wallet = get_wallet_state()
+        network = get_network_status()
+    except Exception:
+        wallet = None
+        network = None
     agents = registry.list_agents()
     running = [a for a in agents if a["running"]]
     return {
@@ -77,6 +84,16 @@ async def agent_status():
         "total_count": len(agents),
         "model": "llama-3.3-70b-versatile",
         "network": "sui-testnet",
+        "wallet": {
+            "address": WALLET_ADDRESS,
+            "balance_sui": wallet.balance_sui if wallet else 0,
+            "faucet_url": f"https://faucet.sui.io/?address={WALLET_ADDRESS}",
+        } if wallet else None,
+        "chain": {
+            "epoch": network.epoch if network else None,
+            "checkpoint": network.checkpoint if network else None,
+            "total_txns": network.total_txns if network else None,
+        } if network else None,
     }
 
 

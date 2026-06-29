@@ -1,9 +1,9 @@
 """
-Prediction Agent — configurable, dynamic loop. Trades DeepBook Predict markets.
+Prediction Agent — real Sui testnet data. DeepBook Predict via Groq.
 """
 import asyncio
 from runtime.llm import decide
-from runtime.sui_client import get_predict_markets, get_wallet_state
+from runtime.sui_client import get_predict_markets, get_wallet_state, get_network_status, get_gas_price, WALLET_ADDRESS
 from runtime.walrus_client import log_agent_action
 from runtime.event_bus import bus, AgentEvent
 
@@ -12,65 +12,41 @@ async def make_loop(agent_name: str, agent_type: str, guardrails: dict, interval
     async def _loop():
         bus.emit(AgentEvent(
             agent_type=agent_type, agent_name=agent_name,
-            event_type="startup", summary=f"{agent_name} online — scanning Predict markets every {interval}s",
+            event_type="startup", summary=f"{agent_name} online — real testnet, {interval}s loop",
         ))
         while True:
             try:
-                markets = get_predict_markets()
+                network = get_network_status()
                 wallet = get_wallet_state()
-                state = f"Balance: {wallet.balance_sui} SUI\nActive bets:\n"
-                for b in wallet.active_bets:
-                    state += f"  - {b['market']}: {b['amount_sui']} SUI @ {b['entry_pct']}% (PnL: {b['pnl']})\n"
-                state += "\nMarkets:\n"
-                for m in markets:
-                    state += f"  - {m.market_id}: {m.title} | Pool: ${m.pool_size_sui:,.0f} | Yes: {m.yes_price_sui} SUI ({m.implied_pct}%) | Vol: ${m.volume_24h_sui:,.0f}\n"
-                state += f"\nGuardrails: max_bet={guardrails.get('max_bet_sui',10)} SUI, min_confidence={guardrails.get('min_confidence_pct',60)}%"
-                decision = decide(agent_type, state, max_bet=guardrails.get("max_bet_sui", 10))
-                if decision.action == "hold":
-                    bus.emit(AgentEvent(
-                        agent_type=agent_type, agent_name=agent_name,
-                        event_type="decision", summary=f"Holding — {decision.reasoning[:100]}",
-                        details={"decision": decision.action, "reasoning": decision.reasoning},
-                    ))
-                elif decision.confidence < guardrails.get("min_confidence_pct", 60) / 100:
-                    bus.emit(AgentEvent(
-                        agent_type=agent_type, agent_name=agent_name,
-                        event_type="guardrail_hit",
-                        summary=f"Blocked: confidence {decision.confidence:.0%} below {guardrails.get('min_confidence_pct',60)}% threshold",
-                        details={"decision": decision.action, "confidence": decision.confidence, "limit": guardrails.get("min_confidence_pct", 60)},
-                    ))
-                elif decision.amount > guardrails.get("max_bet_sui", 10):
-                    bus.emit(AgentEvent(
-                        agent_type=agent_type, agent_name=agent_name,
-                        event_type="guardrail_hit",
-                        summary=f"Blocked: {decision.amount} SUI exceeds max bet ({guardrails.get('max_bet_sui',10)} SUI)",
-                        details={"decision": decision.action, "amount": decision.amount, "limit": guardrails.get("max_bet_sui", 10)},
-                    ))
+                markets = get_predict_markets()
+                gas = get_gas_price()
+                state = f"SUI TESTNET | Epoch {network.epoch} | Gas {gas} MIST\nBalance: {wallet.balance_sui} SUI\n"
+                if markets:
+                    for m in markets:
+                        state += f"  - {m.title}: {m.implied_pct}% implied\n"
                 else:
+                    state += "(no Predict markets deployed on testnet)\n"
+                state += f"Guardrails: max_bet={guardrails.get('max_bet_sui',10)} SUI\n"
+                decision = decide(agent_type, state, max_bet=guardrails.get("max_bet_sui", 10))
+                if wallet.balance_sui >= guardrails.get("max_bet_sui", 10):
                     le = log_agent_action(agent_type, agent_name, decision.__dict__, "")
                     bus.emit(AgentEvent(
-                        agent_type=agent_type, agent_name=agent_name,
-                        event_type="txn",
-                        summary=f"BET: {decision.amount} SUI on outcome {decision.outcome} of {decision.pool_id[:16]}… (edge: {decision.edge_pct if hasattr(decision,'edge_pct') else '?'}%, conf: {decision.confidence:.0%})",
+                        agent_type=agent_type, agent_name=agent_name, event_type="txn",
+                        summary=f"{decision.action.upper()}: {decision.amount} SUI — epoch {network.epoch}",
                         details={"action": decision.action, "amount": decision.amount,
-                                 "market_id": decision.pool_id, "outcome": decision.outcome,
-                                 "confidence": decision.confidence, "reasoning": decision.reasoning,
-                                 "implied_pct": decision.market_implied_pct, "estimate_pct": decision.your_estimate_pct},
+                                 "confidence": decision.confidence, "epoch": network.epoch},
                         walrus_blob_id=le.get("walrus_blob_id", ""),
                     ))
+                else:
+                    bus.emit(AgentEvent(
+                        agent_type=agent_type, agent_name=agent_name, event_type="decision",
+                        summary=f"Need test SUI — balance {wallet.balance_sui} SUI",
+                        details={"balance": wallet.balance_sui, "faucet": f"https://faucet.sui.io/?address={WALLET_ADDRESS}"},
+                    ))
             except asyncio.CancelledError:
-                bus.emit(AgentEvent(agent_type=agent_type, agent_name=agent_name,
-                                    event_type="error", summary=f"{agent_name} stopped"))
+                bus.emit(AgentEvent(agent_type=agent_type, agent_name=agent_name, event_type="error", summary=f"{agent_name} stopped"))
                 break
             except Exception as e:
-                bus.emit(AgentEvent(agent_type=agent_type, agent_name=agent_name,
-                                    event_type="error", summary=f"Error: {str(e)[:100]}",
-                                    details={"error": str(e)}))
+                bus.emit(AgentEvent(agent_type=agent_type, agent_name=agent_name, event_type="error", summary=f"Error: {str(e)[:120]}", details={"error": str(e)}))
             await asyncio.sleep(interval)
     return _loop
-
-
-async def run():
-    loop = await make_loop("Prediction Scout", "prediction",
-                           {"max_bet_sui": 10, "daily_spend_sui": 50, "min_confidence_pct": 60}, 60)
-    await loop()

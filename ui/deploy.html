@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f4f1e8" />
-  <link rel="preconnect" href="http://fonts.googleapis.com" />
-  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/subpage.css" />
   <title>Deploy — AgentOS</title>
@@ -14,7 +14,7 @@
 <body>
 
 <header class="subnav">
-  <a href="index.html" class="subnav-home">AGENT<span class="accent">OS</span></a>
+  <a href="index.html" class="subnav-home">Agent<span>OS</span></a>
   <div class="subnav-group">
     <a href="contracts.html">contracts</a>
     <a href="api.html">api</a>
@@ -26,70 +26,33 @@
 <section class="spread">
   <div class="spread-gutter"><span class="folio">deploy</span></div>
   <h2 class="spread-head">Deploy an agent.<br>Configurable guardrails.</h2>
-
-  <div class="deploy-block" style="grid-column:2">
-    <div class="deploy-form">
-      <div class="field">
-        <label>Agent type</label>
-        <select id="agent-type">
-          <option value="yield">Yield Agent — DeepBook LP optimization</option>
-          <option value="trader">Trader Agent — Spot + Margin arbitrage</option>
-          <option value="prediction">Prediction Agent — Predict markets</option>
-        </select>
+  <div class="deploy-block-sub">
+    <div>
+      <div class="df-field-sub"><label>Agent type</label><select id="agent-type"><option value="yield">Yield Agent — DeepBook LP</option><option value="trader">Trader Agent — Spot + Margin</option><option value="prediction">Prediction Agent — Predict markets</option></select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <div class="df-field-sub"><label>Name</label><input type="text" id="agent-name" value="Alpha Yield" /></div>
+        <div class="df-field-sub"><label>Initial funding (SUI)</label><input type="number" id="initial-fund" value="100" /></div>
       </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Name</label>
-          <input type="text" id="agent-name" value="Alpha Yield" />
-        </div>
-        <div class="field">
-          <label>Initial funding (SUI)</label>
-          <input type="number" id="initial-fund" value="100" min="1" />
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <div class="df-field-sub"><label>Max TX (SUI)</label><input type="number" id="max-tx" value="100" /></div>
+        <div class="df-field-sub"><label>Daily limit (SUI)</label><input type="number" id="daily-limit" value="500" /></div>
       </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Max TX (SUI)</label>
-          <input type="number" id="max-tx" value="100" min="1" />
-        </div>
-        <div class="field">
-          <label>Daily limit (SUI)</label>
-          <input type="number" id="daily-limit" value="500" min="1" />
-        </div>
-      </div>
-      <button class="cta" id="deploy-btn">Deploy Agent</button>
+      <button class="btn-deploy" id="deploy-btn" style="margin-top:20px">Deploy Agent</button>
+      <div class="pstep-sub" style="margin-top:40px"><div class="ps-num">01</div><p>Factory creates wallet with your guardrails.</p></div>
+      <div class="pstep-sub"><div class="ps-num">02</div><p>Wallet funded. Agent registered on-chain.</p></div>
+      <div class="pstep-sub"><div class="ps-num">03</div><p>Event emitted. Runtime starts polling.</p></div>
+      <div class="pstep-sub"><div class="ps-num">04</div><p>Agent begins autonomous operation via Groq LLM.</p></div>
     </div>
-    <div class="deploy-proof">
-      <div class="proof-line proof-label">Guardrail enforcement</div>
+    <div class="proof-panel">
+      <div class="proof-label">Guardrail enforcement</div>
       <div class="proof-line">max_tx_value <span>100 SUI</span></div>
       <div class="proof-line">daily_spend_limit <span>500 SUI</span></div>
       <div class="proof-line">allowed_actions <span>swap, stake, lp_deposit</span></div>
       <div class="proof-line">stop_loss <span>5%</span></div>
-      <div class="proof-line proof-label" style="margin-top:24px">Verifiability</div>
+      <div class="proof-label" style="margin-top:24px">Verifiability</div>
       <div class="proof-line">execution_logs <span>Walrus blob</span></div>
-      <div class="proof-line">model_configs <span>Walrus blob</span></div>
       <div class="proof-line">private_keys <span>Seal encrypted</span></div>
-      <div class="proof-line">identity <span>zkLogin (Google OAuth)</span></div>
-    </div>
-  </div>
-
-  <div class="api-section" style="grid-column:2; margin-top:48px">
-    <h4>What happens on deploy</h4>
-    <div class="pipe-step">
-      <div class="pipe-num">01</div>
-      <div class="pipe-content"><p>AgentFactory creates a wallet with your specified guardrails (max TX, daily limit, allowed actions).</p></div>
-    </div>
-    <div class="pipe-step">
-      <div class="pipe-num">02</div>
-      <div class="pipe-content"><p>Wallet is funded with your initial SUI deposit. Factory registers the agent in the on-chain AgentRegistry.</p></div>
-    </div>
-    <div class="pipe-step">
-      <div class="pipe-num">03</div>
-      <div class="pipe-content"><p>Agent entry is emitted as an event. Dashboard picks it up via SSE. Off-chain runtime starts polling.</p></div>
-    </div>
-    <div class="pipe-step">
-      <div class="pipe-num">04</div>
-      <div class="pipe-content"><p>Agent begins autonomous operation — scanning pools, evaluating trades, submitting decisions through Groq LLM.</p></div>
+      <div class="proof-line">identity <span>zkLogin</span></div>
     </div>
   </div>
 </section>
@@ -99,7 +62,7 @@
     <button class="modal-close" onclick="document.getElementById('success-modal').classList.remove('is-open')">&times;</button>
     <h3>Agent Deployed</h3>
     <div class="success-details" id="success-details"></div>
-    <button class="cta" onclick="window.location.href='dashboard.html'">Open Dashboard</button>
+    <button class="btn-deploy" onclick="window.location.href='dashboard.html'">Open Dashboard</button>
   </div>
 </div>
 

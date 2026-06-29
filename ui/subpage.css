@@ -1,75 +1,106 @@
 /* ═══════════════════════════════════════════════════
-   Sub-pages: dashboard · api · contracts · deploy
-   Same editorial world, page-specific overrides
+   Sub-pages — dark theme · Syne + DM Sans + JetBrains
    ═══════════════════════════════════════════════════ */
 
 .subnav {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 36px; border-bottom: 1px solid var(--line);
-  max-width: 1100px; margin: 0 auto;
-  font-family: "IBM Plex Mono", monospace; font-size: 12px;
+  padding: 18px 40px; border-bottom: 1px solid var(--line);
+  max-width: 1400px; margin: 0 auto;
 }
 .subnav-home {
-  font-size: 14px; font-weight: 600; letter-spacing: 2px;
-  text-decoration: none; color: var(--ink);
+  font-family: "Syne", sans-serif; font-size: 16px; font-weight: 700;
+  letter-spacing: -0.01em; text-decoration: none; color: var(--ink);
 }
-.subnav-group {
-  display: flex; gap: 24px; align-items: center;
-}
+.subnav-home span { color: var(--accent); }
+.subnav-group { display: flex; gap: 24px; }
 .subnav-group a {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--muted); text-decoration: none;
-  transition: color 0.2s;
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  color: var(--muted); text-decoration: none; text-transform: uppercase;
+  letter-spacing: 1px; transition: color 0.2s;
 }
 .subnav-group a:hover { color: var(--ink); }
-.subnav-group a.active {
-  color: var(--hot); pointer-events: none;
-}
+.subnav-group a.active { color: var(--accent); }
+
+.spread { padding: 80px 40px; max-width: 1100px; margin: 0 auto; }
+.spread-gutter { margin-bottom: 16px; }
+.folio { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--accent); }
+.spread-head { font-family: "Syne", sans-serif; font-size: clamp(28px, 5vw, 44px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 48px; }
 
 /* ── Dashboard ── */
-.dash-grid { grid-column: 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.dash-card { border: 1px solid var(--line); padding: 20px; position: relative; }
-.dash-card-status { position: absolute; top: 12px; right: 12px; font-size: 9px; font-family: "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
-.dash-card-status.live { color: var(--green); }
-.dash-card-status.live::before { content: '● '; }
-.dash-card h4 { font-size: 16px; margin-bottom: 4px; }
-.dash-type { font-size: 11px; color: var(--muted); font-family: "IBM Plex Mono", monospace; display: block; margin-bottom: 16px; }
-.dash-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.dash-meta label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: block; font-family: "IBM Plex Mono", monospace; }
-.dash-meta span { font-family: "IBM Plex Mono", monospace; font-size: 16px; font-weight: 500; color: var(--ink); }
-
-.event-stream { grid-column: 2; margin-top: 32px; }
-.event-header { font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 500; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 40px; }
+.dash-card { background: var(--bg2); padding: 28px; position: relative; }
+.dash-card-status { position: absolute; top: 16px; right: 16px; font-family: "JetBrains Mono", monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.dash-card-status.live { color: #34d399; }
+.dash-card-status.live::before { content: "● "; }
+.dash-card h4 { font-family: "Syne", sans-serif; font-size: 17px; margin-bottom: 4px; }
+.dash-type { font-size: 12px; color: var(--muted); font-family: "JetBrains Mono", monospace; display: block; margin-bottom: 20px; }
+.dash-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.dash-meta label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: block; font-family: "JetBrains Mono", monospace; }
+.dash-meta span { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 500; }
+.event-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-family: "JetBrains Mono", monospace; font-size: 12px; }
 .event-live { font-size: 10px; color: var(--muted); }
-.event-live.connected { color: var(--green); }
-.event-live.connected::before { content: '● '; }
-.event-list { max-height: 360px; overflow-y: auto; }
-.event-row { display: grid; grid-template-columns: 70px 120px 1fr auto; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.03); font-family: "IBM Plex Mono", monospace; font-size: 11px; align-items: center; }
+.event-live.connected { color: #34d399; }
+.event-live.connected::before { content: "● "; }
+.event-list { max-height: 400px; overflow-y: auto; }
+.event-row { display: grid; grid-template-columns: 70px 110px 1fr auto; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-family: "JetBrains Mono", monospace; font-size: 11px; }
 .ev-time { color: var(--muted); }
-.ev-agent { color: var(--hot); }
+.ev-agent { color: var(--accent); }
 .ev-msg { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ev-walrus { color: var(--muted); font-size: 9px; }
-.event-empty { padding: 30px 0; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+.event-empty { padding: 40px 0; font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--muted); }
 
-/* ── API & Contracts ── */
-.api-section { grid-column: 2; margin-bottom: 36px; }
-.api-section h4 { font-family: "IBM Plex Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
-.api-endpoint { display: grid; grid-template-columns: 50px 220px 1fr; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); align-items: baseline; font-size: 13px; }
-.ep-method { font-family: "IBM Plex Mono", monospace; font-size: 10px; font-weight: 600; color: var(--hot); text-transform: uppercase; }
-.ep-path { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink); }
+/* ── API ── */
+.api-section { margin-bottom: 40px; }
+.api-section h4 { font-family: "JetBrains Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 14px; }
+.api-endpoint { display: grid; grid-template-columns: 48px minmax(200px, 1fr) 2fr; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); align-items: baseline; font-size: 13px; }
+.ep-method { font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 600; color: var(--accent); text-transform: uppercase; }
+.ep-path { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink); }
 .ep-desc { font-size: 12px; color: var(--muted); }
 
-.contract-card { padding: 20px 0; border-top: 1px solid var(--line); }
-.contract-card h5 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.contract-card h5 span { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-left: 8px; font-family: "IBM Plex Mono", monospace; }
-.contract-card p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+/* ── Contracts ── */
+.contract-card { padding: 28px 0; border-top: 1px solid var(--line); }
+.contract-card h5 { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.contract-card h5 span { font-family: "JetBrains Mono", monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-left: 8px; }
+.contract-card p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
 .contract-sig { display: flex; flex-direction: column; gap: 4px; }
-.contract-sig code { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink); background: var(--paper2); padding: 3px 8px; display: inline-block; width: fit-content; }
+.contract-sig code { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink); background: var(--bg3); padding: 4px 10px; display: inline-block; width: fit-content; }
+
+/* ── Deploy page ── */
+.deploy-block-sub { display: grid; grid-template-columns: 1fr 320px; gap: 48px; }
+.df-field-sub { display: flex; flex-direction: column; gap: 4px; }
+.df-field-sub label { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.df-field-sub input, .df-field-sub select {
+  background: var(--bg2); border: 1px solid var(--line); color: var(--ink);
+  padding: 10px 12px; font-size: 14px; font-family: "DM Sans", sans-serif; outline: none;
+  transition: border-color 0.2s;
+}
+.df-field-sub input:focus, .df-field-sub select:focus { border-color: var(--accent); }
+.btn-deploy {
+  background: var(--accent); color: #fff; border: none;
+  padding: 14px 28px; font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: "DM Sans", sans-serif; transition: background 0.2s;
+}
+.btn-deploy:hover { background: #e02e2e; }
+.proof-panel { display: flex; flex-direction: column; gap: 8px; padding-top: 28px; }
+.proof-line { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+.proof-line span { color: var(--ink); }
+.proof-label { color: var(--ink) !important; font-weight: 500; margin-top: 16px; }
+.pstep-sub { display: grid; grid-template-columns: 40px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); align-items: start; }
+.pstep-sub p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(10,10,10,0.92); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.modal-overlay.is-open { opacity: 1; pointer-events: auto; }
+.modal-card { max-width: 400px; width: 90%; text-align: center; position: relative; padding: 40px; background: var(--bg2); border: 1px solid var(--line); }
+.modal-card h3 { font-family: "Syne", sans-serif; font-size: 22px; margin-bottom: 16px; }
+.modal-close { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+.success-details { background: var(--bg3); padding: 14px; margin-bottom: 20px; font-family: "JetBrains Mono", monospace; font-size: 11px; text-align: left; color: var(--muted); line-height: 1.8; }
 
 @media (max-width: 800px) {
   .dash-grid { grid-template-columns: 1fr; }
-  .db-grid { grid-template-columns: 1fr; }
+  .deploy-block-sub { grid-template-columns: 1fr; }
   .api-endpoint { grid-template-columns: 1fr; gap: 2px; }
-  .event-row { grid-template-columns: 60px 1fr; overflow: hidden; }
+  .subnav-group { gap: 12px; }
+  .event-row { grid-template-columns: 50px 1fr; }
   .ev-agent, .ev-walrus { display: none; }
 }

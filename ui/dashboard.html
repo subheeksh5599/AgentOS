@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f4f1e8" />
-  <link rel="preconnect" href="http://fonts.googleapis.com" />
-  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/subpage.css" />
   <title>Dashboard — AgentOS</title>
@@ -14,7 +14,7 @@
 <body>
 
 <header class="subnav">
-  <a href="index.html" class="subnav-home">AGENT<span class="accent">OS</span></a>
+  <a href="index.html" class="subnav-home">Agent<span>OS</span></a>
   <div class="subnav-group">
     <a href="contracts.html">contracts</a>
     <a href="api.html">api</a>
@@ -61,11 +61,9 @@
       </div>
     </div>
   </div>
-  <div class="event-stream" id="event-stream">
-    <div class="event-header">Event stream <span class="event-live">live · SSE</span></div>
-    <div class="event-list" id="event-list">
-      <div class="event-empty">Connecting to agent runtime…</div>
-    </div>
+  <div class="event-stream">
+    <div class="event-header">Event stream <span class="event-live">SSE</span></div>
+    <div class="event-list" id="event-list"><div class="event-empty">Connecting to agent runtime…</div></div>
   </div>
 </section>
 

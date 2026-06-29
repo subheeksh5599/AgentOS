@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f4f1e8" />
-  <link rel="preconnect" href="http://fonts.googleapis.com" />
-  <link rel="preconnect" href="http://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/subpage.css" />
   <title>API — AgentOS</title>
@@ -14,7 +14,7 @@
 <body>
 
 <header class="subnav">
-  <a href="index.html" class="subnav-home">AGENT<span class="accent">OS</span></a>
+  <a href="index.html" class="subnav-home">Agent<span>OS</span></a>
   <div class="subnav-group">
     <a href="contracts.html">contracts</a>
     <a href="api.html" class="active">api</a>
@@ -26,63 +26,24 @@
 <section class="spread">
   <div class="spread-gutter"><span class="folio">api</span></div>
   <h2 class="spread-head">API reference.<br>REST + SSE runtime.</h2>
-  <div class="api-section">
-    <h4>Runtime</h4>
-    <div class="api-endpoint">
-      <div class="ep-method">GET</div>
-      <div class="ep-path">/api/runtime/agents</div>
-      <div class="ep-desc">List all running agents with status, type, and poll interval.</div>
-    </div>
-    <div class="api-endpoint">
-      <div class="ep-method">GET</div>
-      <div class="ep-path">/api/runtime/events</div>
-      <div class="ep-desc">SSE stream of live agent decisions, TXNs, errors, and guardrail hits. text/event-stream.</div>
-    </div>
-    <div class="api-endpoint">
-      <div class="ep-method">GET</div>
-      <div class="ep-path">/api/runtime/history?limit=50</div>
-      <div class="ep-desc">Recent event history as JSON. Optional query param limit (default 50).</div>
-    </div>
+  <div class="api-section"><h4>Runtime</h4>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/runtime/agents</div><div class="ep-desc">Running agents with status, type, poll interval.</div></div>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/runtime/events</div><div class="ep-desc">SSE stream of agent decisions. text/event-stream.</div></div>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/runtime/history?limit=50</div><div class="ep-desc">Recent event history as JSON.</div></div>
   </div>
-  <div class="api-section">
-    <h4>State</h4>
-    <div class="api-endpoint">
-      <div class="ep-method">GET</div>
-      <div class="ep-path">/api/health</div>
-      <div class="ep-desc">Service health check. Returns service name and version.</div>
-    </div>
-    <div class="api-endpoint">
-      <div class="ep-method">GET</div>
-      <div class="ep-path">/api/state</div>
-      <div class="ep-desc">Full system state: nodes, pools, capacity, transactions, chain verification, agent status.</div>
-    </div>
+  <div class="api-section"><h4>State</h4>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/health</div><div class="ep-desc">Service health check.</div></div>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/state</div><div class="ep-desc">Full system state: nodes, pools, capacity, transactions, chain, agents.</div></div>
   </div>
-  <div class="api-section">
-    <h4>Console</h4>
-    <div class="api-endpoint">
-      <div class="ep-method">POST</div>
-      <div class="ep-path">/api/console</div>
-      <div class="ep-desc">Execute a CLI command on the runtime. Supported: status, pools, nodes, store &lt;mb&gt;, txns, agents, scan, health.</div>
-    </div>
+  <div class="api-section"><h4>Console & TXNs</h4>
+    <div class="api-endpoint"><div class="ep-method">POST</div><div class="ep-path">/api/console</div><div class="ep-desc">CLI commands: status, pools, nodes, store, txns, agents, scan, health.</div></div>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/transactions</div><div class="ep-desc">SHA-256 hash-chained ledger.</div></div>
+    <div class="api-endpoint"><div class="ep-method">POST</div><div class="ep-path">/api/transactions</div><div class="ep-desc">Submit transaction to allocated storage node.</div></div>
   </div>
-  <div class="api-section">
-    <h4>Transactions</h4>
-    <div class="api-endpoint">
-      <div class="ep-method">GET</div>
-      <div class="ep-path">/api/transactions</div>
-      <div class="ep-desc">List all transactions in the SHA-256 hash-chained ledger.</div>
-    </div>
-    <div class="api-endpoint">
-      <div class="ep-method">POST</div>
-      <div class="ep-path">/api/transactions</div>
-      <div class="ep-desc">Submit a new transaction. Auto-allocates to least-used storage node. Body: { op: "store", size_gb: 1.0 }</div>
-    </div>
-  </div>
-  <div class="api-section">
-    <h4>Pools & Nodes</h4>
-    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/pools</div><div class="ep-desc">List all storage pools with region, capacity, usage.</div></div>
-    <div class="api-endpoint"><div class="ep-method">POST</div><div class="ep-path">/api/pools</div><div class="ep-desc">Create a new storage pool. Body: { name, region, capacity_tb, tier }</div></div>
-    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/nodes?pool_id=</div><div class="ep-desc">List storage nodes, optionally filtered by pool_id.</div></div>
+  <div class="api-section"><h4>Pools & Nodes</h4>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/pools</div><div class="ep-desc">Storage pools with region, capacity, usage.</div></div>
+    <div class="api-endpoint"><div class="ep-method">POST</div><div class="ep-path">/api/pools</div><div class="ep-desc">Create storage pool.</div></div>
+    <div class="api-endpoint"><div class="ep-method">GET</div><div class="ep-path">/api/nodes?pool_id=</div><div class="ep-desc">Storage nodes, optionally filtered by pool.</div></div>
   </div>
 </section>
 

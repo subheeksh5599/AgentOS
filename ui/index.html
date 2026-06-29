@@ -21,7 +21,7 @@
     <a href="#stack">stack</a>
     <a href="contracts.html">contracts</a>
     <a href="api.html">api</a>
-    <a href="dashboard.html" class="nav-dash">dashboard →</a>
+    <a href="deploy.html" class="nav-dash">deploy →</a>
   </nav>
 </header>
 
@@ -44,7 +44,7 @@
   </div>
   <div class="hero-aside">
     <p>Deploy autonomous agents with Sui wallets, verifiable execution via Walrus, and programmable guardrails. One click.</p>
-    <a href="#deploy" class="cta">Deploy an agent →</a>
+    <a href="deploy.html" class="cta">Deploy an agent →</a>
   </div>
   <div class="hero-stat">
     <div class="stat-big">7</div>
@@ -62,19 +62,19 @@
       <span class="strat-num">I</span>
       <h3>Yield Agent</h3>
       <p>Scans DeepBook pools for optimal APR. Rebalances daily when edge exceeds 2%. Auto-compounds rewards. Max 50% single-pool exposure. Programmable guardrails enforced on-chain.</p>
-      <button class="cta" onclick="document.getElementById('deploy').scrollIntoView({behavior:'smooth'})">Deploy</button>
+      <button class="cta" onclick="window.location.href='deploy.html?type=yield'">Deploy</button>
     </div>
     <div class="strat" id="strat-2">
       <span class="strat-num">II</span>
       <h3>Trader Agent</h3>
       <p>Arbitrage across DeepBook Spot and Margin order books. Stop-loss at 5%, take-profit at 10%. Whitelisted trading pairs via on-chain guardrails. 0.5% minimum profit threshold after fees.</p>
-      <button class="cta" onclick="document.getElementById('deploy').scrollIntoView({behavior:'smooth'})">Deploy</button>
+      <button class="cta" onclick="window.location.href='deploy.html?type=yield'">Deploy</button>
     </div>
     <div class="strat" id="strat-3">
       <span class="strat-num">III</span>
       <h3>Prediction Agent</h3>
       <p>Trades DeepBook Predict markets using Kelly criterion sizing. Only bets when model edge exceeds 5% over market-implied probability. 60% minimum confidence threshold. First framework building on Predict since May 2026.</p>
-      <button class="cta" onclick="document.getElementById('deploy').scrollIntoView({behavior:'smooth'})">Deploy</button>
+      <button class="cta" onclick="window.location.href='deploy.html?type=yield'">Deploy</button>
     </div>
   </div>
   <div class="spread-bleed">
@@ -132,58 +132,6 @@
       <div class="ishard ishard-4"></div>
     </div>
     <div class="image-caption">Every agent decision is a shard of verifiable execution. Walrus binds them together.</div>
-  </div>
-</section>
-
-<section class="spread" id="deploy">
-  <div class="spread-gutter">
-    <span class="folio">03</span>
-  </div>
-  <h2 class="spread-head">Deploy an agent.<br>One click.</h2>
-  <div class="deploy-block">
-    <div class="deploy-form">
-      <div class="field">
-        <label>Agent type</label>
-        <select id="agent-type">
-          <option value="yield">Yield Agent — DeepBook LP optimization</option>
-          <option value="trader">Trader Agent — Spot + Margin arbitrage</option>
-          <option value="prediction">Prediction Agent — Predict markets</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Name</label>
-          <input type="text" id="agent-name" value="Alpha Yield" />
-        </div>
-        <div class="field">
-          <label>Initial funding (SUI)</label>
-          <input type="number" id="initial-fund" value="100" min="1" />
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Max TX (SUI)</label>
-          <input type="number" id="max-tx" value="100" min="1" />
-        </div>
-        <div class="field">
-          <label>Daily limit (SUI)</label>
-          <input type="number" id="daily-limit" value="500" min="1" />
-        </div>
-      </div>
-      <button class="cta" onclick="handleDeploy()" id="deploy-btn">Deploy Agent</button>
-    </div>
-    <div class="deploy-proof">
-      <div class="proof-line proof-label">Guardrail enforcement</div>
-      <div class="proof-line">max_tx_value <span>100 SUI</span></div>
-      <div class="proof-line">daily_spend_limit <span>500 SUI</span></div>
-      <div class="proof-line">allowed_actions <span>swap, stake, lp_deposit</span></div>
-      <div class="proof-line">stop_loss <span>5%</span></div>
-      <div class="proof-line proof-label" style="margin-top:24px">Verifiability</div>
-      <div class="proof-line">execution_logs <span>Walrus blob</span></div>
-      <div class="proof-line">model_configs <span>Walrus blob</span></div>
-      <div class="proof-line">private_keys <span>Seal encrypted</span></div>
-      <div class="proof-line">identity <span>zkLogin (Google OAuth)</span></div>
-    </div>
   </div>
 </section>
 
@@ -259,16 +207,6 @@
     <span>AgentOS · Move framework for on-chain AI agents · Apache 2.0</span>
   </div>
 </footer>
-
-<!-- success modal -->
-<div class="modal-overlay" id="success-modal">
-  <div class="modal-card">
-    <button class="modal-close" onclick="document.getElementById('success-modal').classList.remove('is-open')">&times;</button>
-    <h3>Agent Deployed</h3>
-    <div class="success-details" id="success-details"></div>
-    <button class="cta" onclick="window.location.href='dashboard.html'">Open Dashboard</button>
-  </div>
-</div>
 
 <script type="module" src="/script.js"></script>
 </body>

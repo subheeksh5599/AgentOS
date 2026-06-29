@@ -33,19 +33,14 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 app.include_router(router)
 app.include_router(runtime_router)
 
-if (UI_DIR / "dist").exists():
-    app.mount("/assets", StaticFiles(directory=UI_DIR / "dist" / "assets"), name="assets")
+app.mount("/assets", StaticFiles(directory=UI_DIR / "assets"), name="assets")
 
-    @app.get("/{full_path:path}")
-    async def serve(full_path: str = ""):
-        fp = UI_DIR / "dist" / (full_path or "index.html")
-        if fp.is_file():
-            return FileResponse(fp)
-        return FileResponse(UI_DIR / "dist" / "index.html")
-else:
-    @app.get("/")
-    async def root():
-        return {"agentos": "1.0.0", "tip": "cd ui && npm run build"}
+@app.get("/{full_path:path}")
+async def serve(full_path: str = ""):
+    fp = UI_DIR / (full_path or "index.html")
+    if fp.is_file():
+        return FileResponse(fp)
+    return FileResponse(UI_DIR / "index.html")
 
 
 def main():

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; overflow-x: hidden; }
+        html, body { width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
         body { --accent: #E63A1B; }
 
         .agent-gradient {
@@ -25,27 +25,20 @@
             animation: pulse 4s ease-in-out infinite alternate;
         }
         @keyframes pulse { from { opacity: 0.6; transform: scale(1); } to { opacity: 1; transform: scale(1.05); } }
-
         .agc { position: relative; z-index: 2; text-align: center; color: #EFEAE3; padding: 3vw; }
         .agc h2 { font-family: neu; font-weight: 200; font-size: clamp(20px, 3vw, 40px); margin-bottom: 10px; }
         .agc p { font-size: clamp(13px, 1.2vw, 17px); max-width: 640px; margin: 0 auto; line-height: 1.6; opacity: 0.7; }
         .agc .dot { display: inline-block; width: 8px; height: 8px; background: #10B981; border-radius: 50%; margin-right: 8px; animation: blink 1.5s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .agc .stats { display: flex; gap: 2vw; justify-content: center; margin-top: 16px; flex-wrap: wrap;
-            font-size: clamp(10px, 0.9vw, 13px); opacity: 0.5; letter-spacing: 0.1em; text-transform: uppercase; }
+        .agc .stats { display: flex; gap: 2vw; justify-content: center; margin-top: 16px; flex-wrap: wrap; font-size: clamp(10px, 0.9vw, 13px); opacity: 0.5; letter-spacing: 0.1em; text-transform: uppercase; }
 
-        /* LIVE FEED */
         #live-feed-section { background: #EFEAE3; padding: 4vw 4vw 8vw; min-height: 40vh; }
-        #live-feed-section .section-label { display: flex; gap: 0.5vw; align-items: center; padding: 0 0 2vw; }
-        #live-feed-section .section-label .dot-red { width: 8px; height: 8px; border-radius: 50%; background: #E63A1B; animation: blink 1s infinite; }
-        #live-feed-section .section-label p { font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+        .section-label { display: flex; gap: 0.5vw; align-items: center; padding: 0 0 2vw; }
+        .section-label .dot-red { width: 8px; height: 8px; border-radius: 50%; background: #E63A1B; animation: blink 1s infinite; }
+        .section-label p { font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
         #feed-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-        .feed-card {
-            background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8e5e0;
-            display: flex; flex-direction: column; gap: 10px; transition: all 0.3s;
-        }
+        .feed-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8e5e0; display: flex; flex-direction: column; gap: 10px; transition: all 0.3s; }
         .feed-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
-        .feed-card .fc-header { display: flex; justify-content: space-between; align-items: center; }
         .fc-agent { font-weight: 700; font-size: 14px; color: #333; }
         .fc-type { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 4px; color: #fff; }
         .fc-type.yield { background: #10B981; }
@@ -56,36 +49,33 @@
         .fc-detail span { background: #f5f5f0; padding: 2px 8px; border-radius: 4px; }
         .fc-time { font-size: 10px; color: #bbb; text-align: right; }
         .feed-card.empty { text-align: center; color: #999; grid-column: 1/-1; padding: 40px; }
-        .feed-card.loading { text-align: center; color: #999; grid-column: 1/-1; padding: 40px; animation: pulse 1.5s infinite; }
 
-        /* AGENT STATUS BAR */
-        #agent-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 2vw; }
+        #agent-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 2vw; justify-content: center; }
         .agent-chip { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e0ddd8; border-radius: 40px; padding: 8px 18px; font-size: 13px; font-weight: 600; }
         .agent-chip .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: #10B981; }
-        .agent-chip .chip-dot.offline { background: #ef4444; }
-        .agent-chip .chip-name { color: #333; }
-        .agent-chip .chip-interval { color: #999; font-weight: 400; font-size: 11px; }
 
-        /* RESPONSIVE */
+        .run-local { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 12px 20px; margin: 16px 0; font-size: 12px; color: #92400E; text-align: center; }
+        .run-local code { background: #FEF3C7; padding: 2px 6px; border-radius: 4px; }
+
+        .nav-wallet-btn {
+            padding: 8px 16px; border-radius: 50px; border: 1px solid var(--accent);
+            background: transparent; color: #1a1a1a; font-family: neu; font-size: 13px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .nav-wallet-btn:hover { background: var(--accent); color: #fff; }
+        .nav-wallet-btn.connected { background: #10B981; border-color: #10B981; color: #fff; }
+
         @media(max-width:900px) {
             .agent-gradient { min-height: 30vh; margin-top: 8vw; }
             .agc { padding: 5vw 3vw; }
-            #agent-bar { justify-content: center; }
             #feed-container { grid-template-columns: 1fr; }
             #live-feed-section { padding: 8vw 4vw; }
+            .nav-wallet-btn { display: none; }
         }
         @media(max-width:600px) {
             .feed-card { padding: 14px; }
             .fc-summary { font-size: 12px; }
         }
-        .nav-wallet-btn {
-            padding: 8px 16px; border-radius: 50px; border: 1px solid var(--accent);
-            background: transparent; color: var(--text); font-family: neu; font-size: 13px;
-            font-weight: 600; cursor: pointer; transition: all 0.3s;
-        }
-        .nav-wallet-btn:hover { background: var(--accent); color: #fff; }
-        .nav-wallet-btn.connected { background: #10B981; border-color: #10B981; color: #fff; }
-        @media(max-width:900px) { .nav-wallet-btn { display: none; } }
     </style>
 </head>
 <body>
@@ -99,22 +89,22 @@
         <div id="full-scr">
             <div id="gooey"></div>
             <div id="full-div1">
-                <h2><a href="#agents">Agents</a></h2>
-                <h2><a href="#live">Live Feed</a></h2>
-                <h2><a href="#stack">Sui Stack</a></h2>
-                <h2><a href="index.html">Home</a></h2>
+                <h2><a href="#page3">Agents</a></h2>
+                <h2><a href="#live-feed-section">Live Feed</a></h2>
+                <h2><a href="#page4">Sui Stack</a></h2>
+                <h2><a href="deploy.html">Deploy</a></h2>
             </div>
         </div>
 
         <!-- PAGE 1: HERO -->
         <div id="page1">
             <nav>
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 32'%3E%3Ctext x='0' y='24' font-family='Arial,sans-serif' font-weight='900' font-size='24'%3EAgent%3Ctspan fill='%23E63A1B'%3EOS%3C/tspan%3E%3C/text%3E%3C/svg%3E" alt="AgentOS" style="height:28px">
+                <a href="index.html"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 32'%3E%3Ctext x='0' y='24' font-family='Arial,sans-serif' font-weight='900' font-size='24'%3EAgent%3Ctspan fill='%23E63A1B'%3EOS%3C/tspan%3E%3C/text%3E%3C/svg%3E" alt="AgentOS" style="height:28px"></a>
                 <div id="nav-part2">
-                    <h4><a href="#agents">Agents</a></h4>
-                    <h4><a href="#live">Live Feed</a></h4>
-                    <h4><a href="#stack">Stack</a></h4>
-                    <h4><a href="deploy.html" style="background:var(--accent);color:#fff!important;border-color:var(--accent)">Deploy</a></h4>
+                    <h4><a href="#page3">Agents</a></h4>
+                    <h4><a href="#live-feed-section">Live Feed</a></h4>
+                    <h4><a href="#page4">Stack</a></h4>
+                    <h4><a href="deploy.html">Deploy</a></h4>
                     <h4><a href="dashboard.html">Dashboard</a></h4>
                     <button class="nav-wallet-btn" id="walletBtn" onclick="toggleWallet()">Connect</button>
                 </div>
@@ -131,12 +121,13 @@
             <div id="hero-shape"><div id="hero1"></div><div id="hero2"></div><div id="hero3"></div></div>
             <div class="agent-gradient">
                 <div class="agc">
-                    <h2 id="hero-status"><span class="dot"></span>Connecting to runtime...</h2>
-                    <p>Real-time AI agents running on Groq llama-3.3-70b. Live data from Sui testnet. Every decision logged immutably to Walrus.</p>
-                    <div class="stats" id="hero-stats">
-                        <span>Groq LLM</span><span>DeepBook</span><span>Walrus</span><span>Sponsored TX</span>
-                    </div>
+                    <h2 id="hero-status"><span class="dot"></span>3 Agents — Yield, Trader, Prediction</h2>
+                    <p>Running on Groq llama-3.3-70b-versatile. Live Sui testnet data. Every decision logged immutably to Walrus.</p>
+                    <div class="stats"><span>Groq LLM</span><span>DeepBook</span><span>Walrus</span><span>Sponsored TX</span><span>Sui Testnet</span></div>
                     <div id="agent-bar"></div>
+                    <div class="run-local" id="localMsg" style="display:none">
+                        <strong>Vercel serverless demo</strong> — agents run locally with <code>.venv/bin/python main.py</code>. Deploy &amp; dashboard work on this deployment.
+                    </div>
                 </div>
             </div>
         </div>
@@ -159,7 +150,7 @@
                 <h1>We are building the<br>infrastructure for autonomous<br>on-chain agents — from<br>Move contracts to LLM<br>reasoning and verifiable<br>execution logs.</h1>
                 <div id="bottom-part2">
                     <div style="height:30vh;width:100%;border-radius:5%;background:linear-gradient(135deg,#E63A1B,#1a1a2e);display:flex;align-items:center;justify-content:center;color:#EFEAE3;font-family:neu;font-weight:200;font-size:40px;">A</div>
-                    <p>Write strategies in Move, deploy via factory contracts. Our Python runtime handles LLM reasoning, on-chain state polling, and transaction submission. Every decision is logged to Walrus.</p>
+                    <p>Write strategies in Move, deploy via factory contracts. Our Python runtime handles LLM reasoning, Sui RPC polling, and sponsored transaction submission.</p>
                 </div>
                 <div id="big-gola"></div>
             </div>
@@ -167,30 +158,31 @@
 
         <!-- LIVE FEED -->
         <div id="live-feed-section">
-            <div class="section-label"><div class="dot-red"></div><p>Live Agent Events — SSE Stream</p></div>
-            <div id="feed-container"><div class="feed-card loading">Connecting to agent runtime...</div></div>
+            <div class="section-label"><div class="dot-red"></div><p>Live Agent Events — Demo</p></div>
+            <div id="feed-container"><div class="feed-card empty">Agent events appear here when running locally with <code>.venv/bin/python main.py</code>. The deploy &amp; dashboard pages work on this deployment.</div></div>
         </div>
 
         <!-- PAGE 3: AGENT TYPES -->
-        <div id="page3" id="agents">
+        <div id="page3">
             <div id="sec"><div id="gol"></div><p>AGENT TYPES</p></div>
             <div id="elem-container">
-                <div id="elem1" class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310B981'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='140' text-anchor='middle' fill='white' font-family='Arial' font-size='28' font-weight='900'%3EYIELD%3C/text%3E%3Ctext x='200' y='170' text-anchor='middle' fill='rgba(255,255,255,0.7)' font-size='14'%3EAgent%3C/text%3E%3C/svg%3E">
-                    <div id="overlay"></div><div id="proj"><h2>Yield Agent</h2><div><h4>DeepBook LP</h4><p>Auto-Compound</p></div></div>
+                <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310B981'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='140' text-anchor='middle' fill='white' font-family='Arial' font-size='28' font-weight='900'%3EYIELD%3C/text%3E%3Ctext x='200' y='170' text-anchor='middle' fill='rgba(255,255,255,0.7)' font-size='14'%3EAgent%3C/text%3E%3C/svg%3E">
+                    <div id="overlay"></div><div id="proj"><h2>Yield Agent</h2><div><h4>DeepBook LP</h4><p>Auto-Compound · 45s loop</p></div></div>
                 </div>
                 <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23E63A1B'/%3E%3Cstop offset='1' stop-color='%23FF8A31'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='140' text-anchor='middle' fill='white' font-family='Arial' font-size='28' font-weight='900'%3ETRADER%3C/text%3E%3Ctext x='200' y='170' text-anchor='middle' fill='rgba(255,255,255,0.7)' font-size='14'%3EAgent%3C/text%3E%3C/svg%3E">
-                    <div id="overlay"></div><div id="proj"><h2>Trader Agent</h2><div><h4>Arbitrage</h4><p>Spot + Margin</p></div></div>
+                    <div id="overlay"></div><div id="proj"><h2>Trader Agent</h2><div><h4>Arbitrage</h4><p>Spot + Margin · 30s loop</p></div></div>
                 </div>
                 <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233B82F6'/%3E%3Cstop offset='1' stop-color='%23A855F7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='140' text-anchor='middle' fill='white' font-family='Arial' font-size='26' font-weight='900'%3EPREDICTION%3C/text%3E%3Ctext x='200' y='170' text-anchor='middle' fill='rgba(255,255,255,0.7)' font-size='14'%3EAgent%3C/text%3E%3C/svg%3E">
-                    <div id="overlay"></div><div id="proj"><h2>Prediction Agent</h2><div><h4>Kelly Criterion</h4><p>DeepBook Predict</p></div></div>
+                    <div id="overlay"></div><div id="proj"><h2>Prediction Agent</h2><div><h4>Kelly Criterion</h4><p>DeepBook Predict · 60s loop</p></div></div>
                 </div>
-                <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230F0D0A'/%3E%3Cstop offset='1' stop-color='%231a1a2e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='130' text-anchor='middle' fill='%23E63A1B' font-family='Arial' font-size='22' font-weight='900'%3ERUNTIME%3C/text%3E%3Ctext x='200' y='160' text-anchor='middle' fill='%23EFEAE3' font-size='18'%3ELlama 3.3 70B%3C/text%3E%3C/svg%3E">
-                    <div id="overlay"></div><div id="proj"><h2>Python Runtime</h2><div><h4>Groq LLM</h4><p>Async Loop</p></div></div>
+                <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230F0D0A'/%3E%3Cstop offset='1' stop-color='%231a1a2e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='130' text-anchor='middle' fill='%23E63A1B' font-family='Arial' font-size='22' font-weight='900'%3ERUNTIME%3C/text%3E%3Ctext x='200' y='160' text-anchor='middle' fill='%23EFEAE3' font-size='18'%3ELlama 3.3 70B%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='%236A6358' font-size='11'%3EGroq · json_object mode%3C/text%3E%3C/svg%3E">
+                    <div id="overlay"></div><div id="proj"><h2>LLM Runtime</h2><div><h4>Groq API</h4><p>Async Python</p></div></div>
                 </div>
-                <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2306B6D4'/%3E%3Cstop offset='1' stop-color='%233B82F6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='140' text-anchor='middle' fill='white' font-family='Arial' font-size='24' font-weight='900'%3EMOVE SDK%3C/text%3E%3C/svg%3E">
-                    <div id="overlay"></div><div id="proj"><h2>Move Contracts</h2><div><h4>Sui Testnet</h4><p>Factory Deploy</p></div></div>
+                <div class="elem" data-image="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2306B6D4'/%3E%3Cstop offset='1' stop-color='%233B82F6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='140' text-anchor='middle' fill='white' font-family='Arial' font-size='24' font-weight='900'%3EMOVE SDK%3C/text%3E%3Ctext x='200' y='170' text-anchor='middle' fill='rgba(255,255,255,0.7)' font-size='14'%3EOn-Chain Contracts%3C/text%3E%3C/svg%3E">
+                    <div id="overlay"></div><div id="proj"><h2>Move Contracts</h2><div><h4>Sui Testnet</h4><p>Factory · Wallet · Registry</p></div></div>
                 </div>
             </div>
+            <div id="but"><div id="navbut"><h4><a href="deploy.html">Deploy Agent &rarr;</a></h4></div></div>
         </div>
 
         <!-- PAGE 4: PIPELINE + STACK -->
@@ -205,17 +197,17 @@
                     </div>
                     <div id="desc">Agents poll Sui testnet RPC for live state → send structured context to Groq llama-3.3-70b for reasoning → validate decisions against on-chain guardrails → execute via sponsored PTBs → log immutably to Walrus. Complete lifecycle: strategy to verification.</div>
                 </div>
-                <img id="page4-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230F0D0A'/%3E%3Cstop offset='1' stop-color='%23162e3b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='500' fill='url(%23g)'/%3E%3Ccircle cx='200' cy='150' r='70' fill='none' stroke='%23E63A1B' stroke-width='2' stroke-dasharray='6 3'/%3E%3Ccircle cx='200' cy='150' r='40' fill='none' stroke='%233B82F6' stroke-width='1.5'/%3E%3Ccircle cx='200' cy='150' r='18' fill='%2310B981' opacity='0.25'/%3E%3Ctext x='200' y='280' text-anchor='middle' fill='%23EFEAE3' font-family='Arial' font-size='36' font-weight='900'%3EAgentOS%3C/text%3E%3Ctext x='200' y='310' text-anchor='middle' fill='%236A6358' font-family='Arial' font-size='11'%3ESui · LLM · Walrus%3C/text%3E%3Crect x='130' y='350' width='50' height='26' rx='6' fill='%23E63A1B' opacity='0.8'/%3E%3Crect x='190' y='350' width='50' height='26' rx='6' fill='%233B82F6' opacity='0.8'/%3E%3Crect x='250' y='350' width='50' height='26' rx='6' fill='%2310B981' opacity='0.8'/%3E%3Ctext x='155' y='368' text-anchor='middle' fill='white' font-size='8'%3EMove%3C/text%3E%3Ctext x='215' y='368' text-anchor='middle' fill='white' font-size='8'%3EPython%3C/text%3E%3Ctext x='275' y='368' text-anchor='middle' fill='white' font-size='8'%3ESui%3C/text%3E%3C/svg%3E" alt="">
+                <img id="page4-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230F0D0A'/%3E%3Cstop offset='1' stop-color='%23162e3b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='500' fill='url(%23g)'/%3E%3Ccircle cx='200' cy='150' r='70' fill='none' stroke='%23E63A1B' stroke-width='2' stroke-dasharray='6 3'/%3E%3Ccircle cx='200' cy='150' r='40' fill='none' stroke='%233B82F6' stroke-width='1.5'/%3E%3Ccircle cx='200' cy='150' r='18' fill='%2310B981' opacity='0.25'/%3E%3Ctext x='200' y='280' text-anchor='middle' fill='%23EFEAE3' font-family='Arial' font-size='36' font-weight='900'%3EAgentOS%3C/text%3E%3Ctext x='200' y='310' text-anchor='middle' fill='%236A6358' font-family='Arial' font-size='11'%3ESui · LLM · Walrus%3C/text%3E%3C/svg%3E" alt="">
             </div>
-            <div id="sec2" id="stack"><div id="gol"></div><p>THE STACK</p></div>
+            <div id="sec2"><div id="gol"></div><p>THE STACK</p></div>
             <div class="swiper mySwiper">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide"><img src="assets/images/walrus.svg" alt=""><p>Content-addressed blobs for agent memory, execution logs, model config. Every decision immutably stored and verifiable.</p></div>
-                    <div class="swiper-slide"><img src="assets/images/seal.svg" alt=""><p>Encrypted agent state and keys at rest. Agents hold funds without exposing signing material. HSM-grade security.</p></div>
+                    <div class="swiper-slide"><img src="assets/images/walrus.svg" alt=""><p>Content-addressed blobs for agent memory, execution logs. Every decision immutably stored and verifiable on Walrus testnet.</p></div>
+                    <div class="swiper-slide"><img src="assets/images/seal.svg" alt=""><p>Encrypted agent state and keys. Agents hold funds without exposing signing material on-chain. HSM-grade security.</p></div>
                     <div class="swiper-slide"><img src="assets/images/deepbook.svg" alt=""><p>Unified liquidity across Spot, Margin, Predict markets. First agent framework building natively on DeepBook Predict.</p></div>
                     <div class="swiper-slide"><img src="assets/images/zklogin.svg" alt=""><p>Google OAuth derives Sui address. Agent identity bound to real user. No seed phrase, no wallet extension.</p></div>
-                    <div class="swiper-slide"><img src="assets/images/groq.svg" alt=""><p>Llama 3.3 70B via Groq's high-performance API. Structured JSON with confidences. Reproducible decisions.</p></div>
-                    <div class="swiper-slide"><img src="assets/images/sui.svg" alt=""><p>Gasless sponsored transactions. Multi-step strategies atomically. Agent-to-agent payments via Google AP2.</p></div>
+                    <div class="swiper-slide"><img src="assets/images/groq.svg" alt=""><p>Llama 3.3 70B via Groq API. Structured JSON with confidence scores. Deterministically reproducible decisions.</p></div>
+                    <div class="swiper-slide"><img src="assets/images/sui.svg" alt=""><p>Gasless sponsored transactions. Multi-step strategies atomically in one PTB. Agent-to-agent payments via AP2.</p></div>
                 </div>
             </div>
         </div>
@@ -223,19 +215,18 @@
         <div id="page5"></div>
     </div>
 
-    <!-- FOOTER -->
     <div id="footer">
         <div id="shape1"></div><div id="shape2"></div>
         <div id="footerupper">
             <div><h2>Agents</h2><h2>Live Feed</h2><h2>Stack</h2></div>
             <div id="email">
-                <p>Deploy autonomous AI agents on Sui. Write strategies in Move, execute on-chain.</p>
+                <p>Deploy autonomous AI agents on Sui. Write strategies in Move, execute on-chain. Apache 2.0.</p>
                 <h6>github.com/subheeksh5599/AgentOS</h6>
             </div>
         </div>
         <div id="footerlower">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 24'%3E%3Ctext x='0' y='20' font-family='Arial,sans-serif' font-weight='900' font-size='20' fill='white'%3EAgent%3Ctspan fill='%23E63A1B'%3EOS%3C/tspan%3E%3C/text%3E%3C/svg%3E" alt="" style="height:24px">
-            <div><h5>Copyright &copy; AgentOS</h5><h5>Sui Testnet</h5><h5>Apache 2.0</h5><h5>GitHub</h5></div>
+            <div><h5>Sui Testnet</h5><h5>Apache 2.0</h5><h5>GitHub</h5></div>
         </div>
     </div>
 
@@ -268,6 +259,53 @@
                 if (a && a.length) { walletAddr = a[0]; updateW(); }
             }).catch(function() {});
         }, 800);
+
+        // Agent bar — shows default agents
+        var defaults = [
+            {name:"Alpha Yield",type:"yield",color:"#10B981",interval:"45s"},
+            {name:"Arb Hunter v2",type:"trader",color:"#E63A1B",interval:"30s"},
+            {name:"Prediction Scout",type:"prediction",color:"#3B82F6",interval:"60s"}
+        ];
+        var bar = document.getElementById("agent-bar");
+        defaults.forEach(function(a) {
+            var el = document.createElement("span");
+            el.className = "agent-chip";
+            el.innerHTML = '<span class="chip-dot" style="background:'+a.color+'"></span><span class="chip-name">'+a.name+'</span><span class="chip-interval">'+a.interval+'</span>';
+            bar.appendChild(el);
+        });
+
+        // Try live API
+        fetch(window.location.origin + "/api/runtime/agents").then(function(r){return r.json()}).then(function(d) {
+            if (d && d.agents && d.agents.length) {
+                bar.innerHTML = "";
+                document.getElementById("hero-status").innerHTML = '<span class="dot"></span>'+d.agents.length+' Agents Live — Groq llama-3.3-70b';
+                d.agents.forEach(function(a) {
+                    var el = document.createElement("span");
+                    el.className = "agent-chip";
+                    el.innerHTML = '<span class="chip-dot" style="background:'+(a.type==="yield"?"#10B981":a.type==="trader"?"#E63A1B":"#3B82F6")+'"></span><span class="chip-name">'+a.name+'</span><span class="chip-interval">'+a.interval_seconds+'s</span>';
+                    bar.appendChild(el);
+                });
+                document.getElementById("localMsg").style.display = "none";
+            } else {
+                document.getElementById("localMsg").style.display = "block";
+            }
+            // Load history
+            fetch(window.location.origin + "/api/runtime/history?limit=8").then(function(r){return r.json()}).then(function(events) {
+                if (events && events.length) {
+                    var fc = document.getElementById("feed-container");
+                    fc.innerHTML = "";
+                    for (var i = events.length-1; i >= 0; i--) {
+                        var e = events[i];
+                        var d = document.createElement("div");
+                        d.className = "feed-card";
+                        d.innerHTML = '<div><span style="font-weight:700;font-size:14px">'+e.agent_name+'</span> <span class="fc-type '+e.agent_type+'">'+e.event_type+'</span></div><div class="fc-summary">'+e.summary+'</div><div class="fc-time">'+new Date(e.timestamp).toLocaleTimeString()+'</div>';
+                        fc.appendChild(d);
+                    }
+                }
+            }).catch(function(){});
+        }).catch(function() {
+            document.getElementById("localMsg").style.display = "block";
+        });
     </script>
 </body>
 </html>

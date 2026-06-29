@@ -1,267 +1,567 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0a0a" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css" />
-  <title>AgentOS</title>
-</head>
-<body class="loading">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentOS — OS for On-Chain AI Agents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<div class="loader">
-  <div class="loader-bg"></div>
-  <div class="loader-text">
-    <div class="loader-word">AGENT<span class="loader-accent">OS</span></div>
-    <div class="loader-bar"><div class="loader-progress"></div></div>
-    <div class="loader-nodes">
-      <span class="lnode">01</span>
-      <span class="lnode">02</span>
-      <span class="lnode">03</span>
-      <span class="lnode">04</span>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+<style>
+  :root {
+    --bg: #0F0D0A;
+    --text: #E8E2D1;
+    --muted: #6A6358;
+    --accent: #E63A1B;
+    --line: rgba(232, 226, 209, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; background: var(--bg); overflow-x: hidden; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--text);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media(hover: hover) { body { cursor: none; } }
+  .serif { font-family: 'Instrument Serif', serif; font-weight: 400; }
+  .italic { font-style: italic; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; height: 100%; object-fit: cover; }
+
+  /* GRAIN + CURSOR */
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+    opacity: 0.18; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .cursor-dot, .cursor-ring {
+    position: fixed; top: 0; left: 0; pointer-events: none; z-index: 10000;
+    border-radius: 50%; transform: translate(-50%, -50%); mix-blend-mode: difference;
+  }
+  .cursor-dot { width: 5px; height: 5px; background: var(--text); }
+  .cursor-ring {
+    width: 40px; height: 40px; border: 1px solid var(--text);
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cursor-ring.hover { width: 80px; height: 80px; border-color: var(--accent); }
+  @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
+
+  /* PRELOADER */
+  .preloader {
+    position: fixed; inset: 0; background: var(--bg); z-index: 10002;
+    display: flex; flex-direction: column; justify-content: space-between; padding: 32px 4vw;
+  }
+  .prel-top { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .prel-mid { display: flex; align-items: flex-end; justify-content: space-between; }
+  .prel-count { font-family: 'Instrument Serif', serif; font-size: clamp(120px, 24vw, 360px); line-height: 0.8; letter-spacing: -0.04em; }
+  .prel-label { font-size: 14px; max-width: 320px; color: var(--muted); line-height: 1.5; padding-bottom: 30px; }
+  .prel-bar { height: 1px; background: rgba(232, 226, 209, 0.08); position: relative; }
+  .prel-bar-fill { position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+
+  /* NAV */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 24px 4vw; display: flex; justify-content: space-between; align-items: center;
+    mix-blend-mode: difference;
+  }
+  .nav-logo { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .nav-menu { display: flex; gap: 36px; font-size: 13px; }
+  .nav-menu a { position: relative; padding: 6px 0; }
+  .nav-menu a::after {
+    content: ''; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%;
+    background: currentColor; transform: scaleX(0); transform-origin: right;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-menu a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  /* HERO */
+  .hero {
+    height: 100vh; position: relative; display: flex; flex-direction: column;
+    justify-content: space-between; padding: 120px 4vw 32px; overflow: hidden;
+  }
+  #hero-canvas { position: absolute; inset: 0; z-index: 0; opacity: 0.6; }
+  .hero-meta {
+    position: relative; z-index: 2; display: flex; justify-content: space-between;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  }
+  .hero-title-wrap { position: relative; z-index: 2; margin-top: auto; }
+  .hero-title {
+    font-size: clamp(60px, 16vw, 260px); line-height: 0.85; letter-spacing: -0.04em; font-weight: 500;
+  }
+  .hero-title .line { display: block; overflow: hidden; }
+  .hero-title .line-inner { display: block; transform: translateY(110%); }
+  .hero-title .accent { color: var(--accent); font-style: italic; font-family: 'Instrument Serif', serif; font-weight: 400; }
+  .hero-bottom {
+    position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .hero-desc { max-width: 420px; font-size: 15px; line-height: 1.5; opacity: 0.8; }
+  .hero-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .hero-pill {
+    padding: 5px 14px; border: 1px solid rgba(232,226,209,0.15);
+    font-size: 11px; letter-spacing: 0.06em;
+  }
+
+  /* CINEMATIC STACK — agent cards */
+  .cinema-wrap { position: relative; height: 400vh; }
+  .cinema-pin {
+    height: 100vh; width: 100%; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cinema-card {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 70vw; height: 70vh; background: var(--bg); overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.4); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 48px; text-align: center;
+    border: 1px solid var(--line);
+  }
+  .cinema-card-inner { max-width: 560px; }
+  .cinema-card-num {
+    font-family: 'Instrument Serif', serif; font-size: 64px; font-style: italic;
+    color: var(--accent); line-height: 1; margin-bottom: 20px;
+  }
+  .cinema-card h3 {
+    font-family: 'Instrument Serif', serif; font-size: clamp(32px, 4vw, 56px);
+    font-style: italic; line-height: 1.1; margin-bottom: 16px; font-weight: 400;
+  }
+  .cinema-card p { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 440px; margin: 0 auto 24px; }
+  .cinema-card-tags { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .cinema-tag {
+    padding: 4px 12px; border: 1px solid var(--line); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  .cinema-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Instrument Serif', serif; font-size: 20px; font-style: italic;
+    color: var(--text); border-bottom: 1px solid var(--text); padding-bottom: 4px;
+    transition: color 0.3s;
+  }
+  .cinema-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* HORIZONTAL FILM STRIP — primitives */
+  .film-section { height: 100vh; overflow: hidden; position: relative; border-top: 1px solid var(--line); }
+  .film-header {
+    position: absolute; top: 0; left: 0; right: 0; padding: 80px 4vw 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .h-title { font-size: 14px; letter-spacing: 0.15em; text-transform: uppercase; }
+  .film-track { display: flex; align-items: center; height: 100%; padding: 0 4vw; }
+  .film-panel {
+    flex-shrink: 0; width: 35vw; height: 55vh; margin-right: 4vw; position: relative;
+    background: rgba(232,226,209,0.03); border: 1px solid var(--line);
+    display: flex; flex-direction: column; justify-content: center; padding: 32px;
+  }
+  .film-panel-num {
+    font-family: 'Instrument Serif', serif; font-size: 48px; font-style: italic;
+    color: var(--accent); line-height: 1; margin-bottom: 16px;
+  }
+  .film-panel h4 { font-family: 'Instrument Serif', serif; font-size: 24px; font-style: italic; font-weight: 400; margin-bottom: 12px; }
+  .film-panel p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* MASSIVE TEXT WIPE */
+  .wipe-section {
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .wipe-text {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: clamp(60px, 14vw, 220px); line-height: 0.8; letter-spacing: -0.05em;
+    text-align: center; color: transparent; -webkit-text-stroke: 1px var(--muted);
+  }
+  .wipe-text .word { display: inline-block; margin: 0 0.08em; }
+  .wipe-overlay {
+    position: absolute; inset: 0; background: var(--accent); z-index: 2;
+    transform: scaleY(0); transform-origin: bottom;
+  }
+
+  /* PIPELINE */
+  .pipeline { padding: 120px 4vw; max-width: 900px; margin: 0 auto; }
+  .pipeline-label { font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 48px; }
+  .pipe-step { display: grid; grid-template-columns: 48px 1fr; gap: 24px; padding: 28px 0; border-top: 1px solid var(--line); align-items: start; }
+  .pipe-num { font-family: 'Instrument Serif', serif; font-size: 24px; font-style: italic; color: var(--accent); }
+  .pipe-body h4 { font-family: 'Instrument Serif', serif; font-size: 22px; font-style: italic; font-weight: 400; margin-bottom: 8px; }
+  .pipe-body p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .pipe-body span { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-family: 'Space Grotesk', sans-serif; display: block; margin-top: 6px; }
+
+  /* FOOTER */
+  .footer {
+    padding: 20vh 4vw 5vh; border-top: 1px solid var(--line); position: relative; overflow: hidden;
+  }
+  .footer-title {
+    font-size: clamp(60px, 16vw, 260px); line-height: 0.8; letter-spacing: -0.04em; font-weight: 500;
+    display: flex; flex-direction: column;
+  }
+  .footer-title .line { display: block; overflow: hidden; }
+  .footer-title .line-inner { display: block; transform: translateY(110%); }
+  .footer-title .serif { font-weight: 400; font-style: italic; color: var(--accent); }
+  .footer-bottom { display: flex; justify-content: space-between; margin-top: 60px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 24px; flex-wrap: wrap; gap: 16px; }
+  .magnetic-btn {
+    display: inline-flex; align-items: center; gap: 12px; font-family: 'Instrument Serif', serif;
+    font-size: 24px; font-style: italic; color: var(--text); padding: 8px 0; border-bottom: 1px solid var(--text);
+    cursor: pointer; text-decoration: none;
+  }
+
+  @media(max-width: 900px) {
+    .cinema-card { width: 90vw; height: 60vh; padding: 32px; }
+    .film-panel { width: 80vw; height: 50vh; }
+    .hero-bottom { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .pipeline { padding: 80px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader">
+  <div class="prel-top">
+    <span>AgentOS · Sui</span>
+    <span>Move · AI</span>
+    <span>Loading</span>
+  </div>
+  <div class="prel-mid">
+    <div class="prel-count" id="prelCount">00</div>
+    <div class="prel-label">Operating system for on-chain AI agents. Deploy autonomous strategies with Sui wallets, verifiable execution, and programmable guardrails.</div>
+  </div>
+  <div class="prel-bar"><div class="prel-bar-fill" id="prelBar"></div></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-logo">Agent<span style="color:var(--accent)">OS</span></a>
+  <div class="nav-menu">
+    <a href="#agents">Agents</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#stack">Sui Stack</a>
+    <a href="#deploy">Deploy</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <canvas id="hero-canvas"></canvas>
+
+  <div class="hero-meta">
+    <div>Sui Testnet · v1.0</div>
+    <div>Local Time <span id="liveTime">--:--:--</span></div>
+    <div>3 Agents Live</div>
+  </div>
+
+  <div class="hero-title-wrap">
+    <h1 class="hero-title">
+      <span class="line"><span class="line-inner">Agent</span></span>
+      <span class="line"><span class="line-inner"><span class="accent">OS</span></span></span>
+    </h1>
+  </div>
+
+  <div class="hero-bottom">
+    <p class="hero-desc">A Move framework for autonomous AI agents on Sui. Deploy yield optimizers, arbitrage traders, and prediction market bots — with verifiable execution logs and on-chain guardrails.</p>
+    <div class="hero-pills">
+      <span class="hero-pill">Walrus</span>
+      <span class="hero-pill">DeepBook</span>
+      <span class="hero-pill">Seal</span>
+      <span class="hero-pill">zkLogin</span>
+      <span class="hero-pill">Sponsored TXs</span>
+      <span class="hero-pill">PTBs</span>
+      <span class="hero-pill">Google AP2</span>
+    </div>
+  </div>
+</section>
+
+<!-- CINEMATIC STACK — 3 agents -->
+<div class="cinema-wrap" id="cinemaWrap">
+  <div class="cinema-pin" id="cinemaPin">
+    <div class="cinema-card" data-i="0">
+      <div class="cinema-card-inner">
+        <div class="cinema-card-num">I</div>
+        <h3>Yield Agent</h3>
+        <p>Scans DeepBook pools for optimal APR. Rebalances daily when edge exceeds 2%. Auto-compounds rewards with max 50% single-pool exposure.</p>
+        <div class="cinema-card-tags"><span class="cinema-tag">DeepBook LP</span><span class="cinema-tag">Auto-Compound</span><span class="cinema-tag">Daily Rebalance</span></div>
+        <a href="deploy.html?type=yield" class="cinema-link">Deploy Yield Agent →</a>
+      </div>
+    </div>
+    <div class="cinema-card" data-i="1">
+      <div class="cinema-card-inner">
+        <div class="cinema-card-num">II</div>
+        <h3>Trader Agent</h3>
+        <p>Arbitrage across DeepBook Spot and Margin order books. Stop-loss at 5%, take-profit at 10%. Whitelisted trading pairs with on-chain guardrails.</p>
+        <div class="cinema-card-tags"><span class="cinema-tag">Spot Trading</span><span class="cinema-tag">Margin</span><span class="cinema-tag">Stop-Loss</span></div>
+        <a href="deploy.html?type=trader" class="cinema-link">Deploy Trader Agent →</a>
+      </div>
+    </div>
+    <div class="cinema-card" data-i="2">
+      <div class="cinema-card-inner">
+        <div class="cinema-card-num">III</div>
+        <h3>Prediction Agent</h3>
+        <p>Trades DeepBook Predict markets using Kelly criterion sizing. 60% minimum confidence threshold. 5% edge over market-implied probability required.</p>
+        <div class="cinema-card-tags"><span class="cinema-tag">DeepBook Predict</span><span class="cinema-tag">Kelly Criterion</span><span class="cinema-tag">Edge Detection</span></div>
+        <a href="deploy.html?type=prediction" class="cinema-link">Deploy Prediction Agent →</a>
+      </div>
+    </div>
+    <div class="cinema-card" data-i="3">
+      <div class="cinema-card-inner">
+        <div class="cinema-card-num">Runtime</div>
+        <h3>Live Agent Engine</h3>
+        <p>All three agents run on Groq (Llama 3.3 70B) with real Sui testnet RPC queries. Every decision is validated against on-chain guardrails before execution.</p>
+        <div class="cinema-card-tags"><span class="cinema-tag">Groq LLM</span><span class="cinema-tag">Sui RPC</span><span class="cinema-tag">SSE Stream</span><span class="cinema-tag">Walrus Logs</span></div>
+        <a href="dashboard.html" class="cinema-link">Open Dashboard →</a>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="cursor"><span class="cursor-inner"></span></div>
-
-<nav class="nav">
-  <a href="#" class="nav-logo">Agent<span>OS</span></a>
-  <div class="nav-links">
-    <a href="#agents">agents</a>
-    <a href="#pipeline">pipeline</a>
-    <a href="#stack">stack</a>
-    <a href="deploy.html" class="nav-cta">deploy</a>
-  </div>
-</nav>
-
-<section class="hero" id="hero">
-  <canvas class="hero-canvas" id="hero-canvas"></canvas>
-  <div class="hero-content">
-    <p class="hero-tag">Sui · Move · AI</p>
-    <h1 class="hero-wordmark">
-      <span class="hw-line">Agent</span>
-      <span class="hw-line accent">OS</span>
-    </h1>
-    <p class="hero-desc">Autonomous on-chain agents with verifiable execution.<br>Deploy in one transaction.</p>
-    <div class="hero-links">
-      <a href="deploy.html" class="hl-primary">Deploy an agent</a>
-      <a href="contracts.html" class="hl-secondary">View contracts</a>
-    </div>
-  </div>
-  <div class="hero-scroll">
-    <span class="hs-line"></span>
-    <span class="hs-text">scroll</span>
-  </div>
-</section>
-
-<section class="work" id="agents">
-  <div class="work-header">
-    <span class="section-num">01</span>
-    <h2>Three autonomous <br>strategies.</h2>
-    <a href="dashboard.html" class="inline-link">live dashboard <span>→</span></a>
-  </div>
-  <div class="work-grid">
-    <div class="work-card" data-scrub>
-      <a href="deploy.html?type=yield" class="work-link">
-        <div class="work-visual wv-1">
-          <canvas class="wc-canvas" data-agent="yield"></canvas>
-          <div class="work-overlay">
-            <span class="wo-tag">DeepBook LP</span>
-          </div>
-        </div>
-        <div class="work-info">
-          <h3>Yield Agent</h3>
-          <p>Scans pools for optimal APR. Rebalances daily. Auto-compounds.</p>
-        </div>
-      </a>
-    </div>
-    <div class="work-card" data-scrub>
-      <a href="deploy.html?type=trader" class="work-link">
-        <div class="work-visual wv-2">
-          <canvas class="wc-canvas" data-agent="trader"></canvas>
-          <div class="work-overlay">
-            <span class="wo-tag">Spot + Margin</span>
-          </div>
-        </div>
-        <div class="work-info">
-          <h3>Trader Agent</h3>
-          <p>Arbitrage with stop-loss at 5%. Take-profit at 10%.</p>
-        </div>
-      </a>
-    </div>
-    <div class="work-card" data-scrub>
-      <a href="deploy.html?type=prediction" class="work-link">
-        <div class="work-visual wv-3">
-          <canvas class="wc-canvas" data-agent="prediction"></canvas>
-          <div class="work-overlay">
-            <span class="wo-tag">Predict Markets</span>
-          </div>
-        </div>
-        <div class="work-info">
-          <h3>Prediction Agent</h3>
-          <p>Kelly criterion sizing. Edge detection. Confidence gating.</p>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
-
+<!-- PIPELINE -->
 <section class="pipeline" id="pipeline">
-  <div class="work-header">
-    <span class="section-num">02</span>
-    <h2>How an agent thinks.</h2>
+  <div class="pipeline-label">§ 02 — How an agent thinks</div>
+  <div class="pipe-step">
+    <div class="pipe-num">01</div>
+    <div class="pipe-body"><h4>Fetch State</h4><p>Agent queries Sui testnet for live pool APRs, order book spreads, and prediction market odds. Real on-chain data only. No simulation.</p><span>Sui JSON-RPC</span></div>
   </div>
-  <div class="pipe-steps">
-    <div class="pstep" data-reveal>
-      <span class="ps-num">01</span>
-      <div class="ps-body">
-        <h4>Fetch state</h4>
-        <p>Sui RPC query for live pool APRs, order book spreads, prediction market odds. Real on-chain data only.</p>
-      </div>
+  <div class="pipe-step">
+    <div class="pipe-num">02</div>
+    <div class="pipe-body"><h4>LLM Reason</h4><p>Structured context is sent to Groq with the agent's strategy prompt. Llama 3.3 70B returns a JSON decision — which pool, how much, at what confidence.</p><span>Groq · json_object mode</span></div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">03</div>
+    <div class="pipe-body"><h4>Guardrail Check</h4><p>Decision is validated against on-chain constraints: max TX value, daily spend limit, allowed action types. Blocked actions are logged, never executed.</p><span>Agent Wallet</span></div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">04</div>
+    <div class="pipe-body"><h4>Execute</h4><p>Valid decisions are packaged into a Programmable Transaction Block and submitted. Gas is sponsored — the agent pays nothing for transactions.</p><span>Sponsored TX · PTB</span></div>
+  </div>
+  <div class="pipe-step">
+    <div class="pipe-num">05</div>
+    <div class="pipe-body"><h4>Log to Walrus</h4><p>Every decision — action, reasoning, hash, timestamp — is uploaded to Walrus as a content-addressed blob. Immutable. Verifiable. Permanent.</p><span>Walrus · Action Log</span></div>
+  </div>
+</section>
+
+<!-- HORIZONTAL FILM STRIP — Sui primitives -->
+<section class="film-section" id="filmSection">
+  <div class="film-header">
+    <span class="h-title">§ 03 Sui Primitives</span>
+    <span class="h-title" style="color:var(--muted)">Scroll / Drag</span>
+  </div>
+  <div class="film-track" id="filmTrack">
+    <div class="film-panel">
+      <div class="film-panel-num">01</div>
+      <h4>Walrus</h4>
+      <p>Content-addressed blobs for agent memory, execution logs, and model configuration. Immutable, verifiable audit trail for every agent decision.</p>
     </div>
-    <div class="pstep" data-reveal>
-      <span class="ps-num">02</span>
-      <div class="ps-body">
-        <h4>LLM reason</h4>
-        <p>Structured context sent to Groq. Llama 3.3 70B returns a JSON decision: which pool, how much, at what confidence.</p>
-      </div>
+    <div class="film-panel">
+      <div class="film-panel-num">02</div>
+      <h4>Seal</h4>
+      <p>Encrypted agent state and private keys at rest. Agents hold funds without exposing signing material on-chain. HSM-grade security.</p>
     </div>
-    <div class="pstep" data-reveal>
-      <span class="ps-num">03</span>
-      <div class="ps-body">
-        <h4>Guardrail check</h4>
-        <p>Max TX, daily limit, allowed actions — validated against on-chain constraints. Blocked actions are logged, never executed.</p>
-      </div>
+    <div class="film-panel">
+      <div class="film-panel-num">03</div>
+      <h4>DeepBook</h4>
+      <p>Unified liquidity across Spot, Margin, and Predict markets. Agents trade through a single interface. First framework building on Predict.</p>
     </div>
-    <div class="pstep" data-reveal>
-      <span class="ps-num">04</span>
-      <div class="ps-body">
-        <h4>Execute</h4>
-        <p>Valid decisions are packaged into a PTB and submitted. Gas is sponsored — the agent pays nothing.</p>
-      </div>
+    <div class="film-panel">
+      <div class="film-panel-num">04</div>
+      <h4>zkLogin</h4>
+      <p>Google OAuth derives a Sui address. Agent identity is bound to a real user, not a detached keypair. No seed phrase. No wallet extension.</p>
     </div>
-    <div class="pstep" data-reveal>
-      <span class="ps-num">05</span>
-      <div class="ps-body">
-        <h4>Log to Walrus</h4>
-        <p>Every decision uploaded as a content-addressed blob. Immutable. Verifiable. Permanent.</p>
-      </div>
+    <div class="film-panel">
+      <div class="film-panel-num">05</div>
+      <h4>Sponsored TXs + PTBs + AP2</h4>
+      <p>Gasless execution via sponsored transactions. Multi-step strategies atomically in one block. Agent-to-agent payments via Google AP2.</p>
     </div>
   </div>
 </section>
 
-<section class="stack" id="stack">
-  <div class="work-header">
-    <span class="section-num">03</span>
-    <h2>Seven primitives.<br>Every agent.</h2>
-  </div>
-  <div class="stack-grid">
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">01</span>
-      <h5>Walrus</h5>
-      <p>Content-addressed agent memory, execution logs, model configs.</p>
-    </div>
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">02</span>
-      <h5>Seal</h5>
-      <p>Encrypted agent state and private keys. No on-chain key exposure.</p>
-    </div>
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">03</span>
-      <h5>DeepBook</h5>
-      <p>Unified liquidity across Spot, Margin, Predict. Single interface.</p>
-    </div>
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">04</span>
-      <h5>zkLogin</h5>
-      <p>Google OAuth derives a Sui address. Agent identity tied to real users.</p>
-    </div>
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">05</span>
-      <h5>Sponsored TXs</h5>
-      <p>Gasless autonomous execution. No SUI balance required for agents.</p>
-    </div>
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">06</span>
-      <h5>PTBs</h5>
-      <p>Multi-step strategies in one atomic transaction. No partial execution.</p>
-    </div>
-    <div class="stack-item" data-reveal>
-      <span class="si-icon">07</span>
-      <h5>Google AP2</h5>
-      <p>Agent-to-agent payments. Sui is Google's launch partner.</p>
-    </div>
-  </div>
+<!-- MASSIVE TEXT WIPE -->
+<section class="wipe-section" id="wipeSection">
+  <div class="wipe-overlay" id="wipeOverlay"></div>
+  <h2 class="wipe-text" id="wipeText">DEPLOY AUTONOMOUS AGENTS ON SUI</h2>
 </section>
 
-<section class="deploy" id="deploy">
-  <div class="work-header">
-    <span class="section-num">04</span>
-    <h2>Deploy an agent.<br>One click.</h2>
-  </div>
-  <div class="deploy-block">
-    <div class="deploy-visual">
-      <canvas class="db-canvas" id="deploy-canvas"></canvas>
-    </div>
-    <div class="deploy-form">
-      <div class="df-row">
-        <div class="df-field"><label>Type</label><select><option>Yield Agent</option><option>Trader Agent</option><option>Prediction Agent</option></select></div>
-        <div class="df-field"><label>Name</label><input type="text" value="Alpha Yield" /></div>
-      </div>
-      <div class="df-row">
-        <div class="df-field"><label>Max TX (SUI)</label><input type="number" value="100" /></div>
-        <div class="df-field"><label>Daily limit (SUI)</label><input type="number" value="500" /></div>
-      </div>
-      <button class="df-btn" onclick="location.href='deploy.html'">Deploy agent</button>
-    </div>
-  </div>
-</section>
-
+<!-- FOOTER -->
 <footer class="footer">
-  <div class="footer-grid">
-    <div class="fg-col">
-      <span class="fg-label">Contracts</span>
-      <a href="contracts.html">agent_registry.move</a>
-      <a href="contracts.html">agent_wallet.move</a>
-      <a href="contracts.html">agent_factory.move</a>
-      <a href="contracts.html">action_log.move</a>
-    </div>
-    <div class="fg-col">
-      <span class="fg-label">Runtime</span>
-      <a href="api.html">llm.py — Groq</a>
-      <a href="api.html">sui_client.py — RPC</a>
-      <a href="api.html">walrus_client.py — Logs</a>
-      <a href="api.html">api.py — SSE</a>
-    </div>
-    <div class="fg-col">
-      <span class="fg-label">Pages</span>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="api.html">API reference</a>
-      <a href="deploy.html">Deploy agent</a>
-      <a href="contracts.html">Move contracts</a>
-    </div>
-    <div class="fg-col">
-      <span class="fg-label">Links</span>
-      <a href="https://github.com/subheeksh5599/AgentOS">GitHub</a>
-      <a href="https://sui.io">Sui</a>
-      <a href="https://groq.com">Groq</a>
-      <a href="https://docs.sui.io">Sui Docs</a>
-    </div>
-  </div>
+  <h2 class="footer-title" id="footerTitle">
+    <span class="line"><span class="line-inner">Deploy</span></span>
+    <span class="line"><span class="line-inner serif">an agent</span></span>
+    <span class="line"><span class="line-inner">today.</span></span>
+  </h2>
   <div class="footer-bottom">
-    <span>AgentOS</span>
-    <span>Apache 2.0</span>
-    <span>2026</span>
+    <a href="deploy.html" class="magnetic-btn" id="magneticBtn">Deploy Agent →</a>
+    <div>
+      AgentOS · Apache 2.0<br>
+      Sui Testnet · Groq Llama 3.3 70B
+    </div>
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
-<script type="module" src="/script.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ========== 1. LENIS ========== */
+const lenis = new Lenis({
+  duration: 1.4,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+});
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+
+/* ========== 2. PRELOADER ========== */
+const tl = gsap.timeline();
+tl.to('#prelCount', {
+  innerText: 100,
+  duration: 2.5,
+  ease: 'power2.inOut',
+  snap: { innerText: 1 },
+  onUpdate: function() {
+    const val = Math.round(this.targets()[0].innerText);
+    document.getElementById('prelCount').innerText = String(val).padStart(2, '0');
+    gsap.set('#prelBar', { scaleX: val / 100 });
+  }
+})
+.to('.preloader', { yPercent: -100, duration: 1.2, ease: 'expo.inOut', delay: 0.3 })
+.from('.nav', { y: -30, opacity: 0, duration: 0.8, ease: 'expo.out' }, "-=0.8")
+.from('.hero-meta', { y: 20, opacity: 0, stagger: 0.1, duration: 0.8, ease: 'expo.out' }, "-=0.6")
+.from('.hero-title .line-inner', { yPercent: 110, duration: 1.4, ease: 'expo.out', stagger: 0.15 }, "-=0.8")
+.from('.hero-bottom', { opacity: 0, y: 30, duration: 1, ease: 'expo.out' }, "-=0.8");
+
+/* ========== 3. CURSOR ========== */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0;
+
+window.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  gsap.to(dot, { x: mx, y: my, duration: 0.1, ease: 'none' });
+});
+gsap.ticker.add(() => {
+  gsap.to(ring, { x: mx, y: my, duration: 0.5, ease: 'power3' });
+});
+document.querySelectorAll('a, .magnetic-btn').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+});
+
+/* ========== 4. WEBGL HERO ========== */
+const canvas = document.getElementById('hero-canvas');
+const gl = canvas.getContext('webgl', { alpha: true });
+if (gl) {
+  const vs = `attribute vec2 a_position; void main() { gl_Position = vec4(a_position, 0.0, 1.0); }`;
+  const fs = `
+    precision highp float;
+    uniform vec2 u_resolution; uniform float u_time; uniform vec2 u_mouse;
+    vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+    vec2 mod289(vec2 x){return x-floor(x*(1./289.))*289.;}
+    vec3 permute(vec3 x){return mod289(((x*34.)+1.)*x);}
+    float snoise(vec2 v){
+      const vec4 C=vec4(.211324865405187,.366025403784439,-.577350269189626,.024390243902439);
+      vec2 i=floor(v+dot(v,C.yy)),x0=v-i+dot(i,C.xx),i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
+      vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;i=mod289(i);
+      vec3 p=permute(permute(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
+      vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);m=m*m;m=m*m;
+      vec3 x=2.*fract(p*C.www)-1.,h=abs(x)-.5,ox=floor(x+.5),a0=x-ox;
+      m*=1.79284291400159-.85373472095314*(a0*a0+h*h);
+      vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;
+      return 130.*dot(m,g);
+    }
+    void main(){
+      vec2 st=gl_FragCoord.xy/u_resolution;st.x*=u_resolution.x/u_resolution.y;
+      vec2 mouse=u_mouse/u_resolution;mouse.x*=u_resolution.x/u_resolution.y;
+      float dist=distance(st,mouse);
+      vec2 toMouse=(st-mouse)*exp(-dist*6.);
+      float t=u_time*.08,noise=0.;
+      noise+=snoise(st*1.5+vec2(t,t*.5)+toMouse);
+      noise+=snoise(st*3.-vec2(t*.8,t)+toMouse*2.)*.5;
+      noise=noise*.5+.5;
+      vec3 c1=vec3(.058,.050,.039),c2=vec3(.15,.1,.08),c3=vec3(.901,.227,.105);
+      vec3 color=mix(c1,c2,noise);
+      float streak=smoothstep(.7,.9,noise+exp(-dist*4.)*.2);
+      color=mix(color,c3,streak*.3);
+      gl_FragColor=vec4(color,1.);
+    }`;
+  function makeShader(type, src) { const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s; }
+  const prog=gl.createProgram(); gl.attachShader(prog,makeShader(gl.VERTEX_SHADER,vs)); gl.attachShader(prog,makeShader(gl.FRAGMENT_SHADER,fs)); gl.linkProgram(prog); gl.useProgram(prog);
+  const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,"a_position"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  const uTime=gl.getUniformLocation(prog,"u_time"),uRes=gl.getUniformLocation(prog,"u_resolution"),uMouse=gl.getUniformLocation(prog,"u_mouse");
+  let tMouse=[window.innerWidth/2,window.innerHeight/2],sMouse=[...tMouse];
+  canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();tMouse=[(e.clientX-r.left)*devicePixelRatio,(r.height-(e.clientY-r.top))*devicePixelRatio];});
+  function resize(){canvas.width=canvas.offsetWidth*devicePixelRatio;canvas.height=canvas.offsetHeight*devicePixelRatio;gl.viewport(0,0,canvas.width,canvas.height);}
+  resize();window.addEventListener('resize',resize);
+  let start=performance.now();
+  function render(){sMouse[0]+=(tMouse[0]-sMouse[0])*.04;sMouse[1]+=(tMouse[1]-sMouse[1])*.04;gl.uniform1f(uTime,(performance.now()-start)/1000);gl.uniform2f(uRes,canvas.width,canvas.height);gl.uniform2f(uMouse,sMouse[0],sMouse[1]);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}
+  render();
+}
+
+/* ========== 5. HERO BURN AWAY ========== */
+gsap.to('#hero', { scale: 1.15, opacity: 0, filter: "blur(20px)", ease: "none",
+  scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: true } });
+
+/* ========== 6. CINEMATIC STACK ========== */
+const cinemaCards = document.querySelectorAll('.cinema-card');
+cinemaCards.forEach((card, i) => {
+  if (i !== 0) gsap.set(card, { yPercent: 100, opacity: 0 });
+  else gsap.set(card, { yPercent: 0, opacity: 1, scale: 1 });
+});
+ScrollTrigger.create({
+  trigger: "#cinemaWrap", start: "top top", end: () => `+=${window.innerHeight * 3}`,
+  pin: "#cinemaPin", scrub: 1, invalidateOnRefresh: true,
+  onUpdate: (self) => {
+    const segTime = 1 / (cinemaCards.length - 1);
+    cinemaCards.forEach((card, i) => {
+      if (i === 0) {
+        const p = gsap.utils.clamp(0, 1, self.progress / segTime);
+        gsap.set(card, { opacity: 1 - p * 0.3, scale: 1 - p * 0.05 });
+      } else {
+        const startP = (i - 1) * segTime, endP = i * segTime;
+        const p = gsap.utils.clamp(0, 1, (self.progress - startP) / segTime);
+        gsap.set(card, { yPercent: (1 - p) * 100, opacity: p });
+        if (i < cinemaCards.length - 1) {
+          const nextStart = i * segTime, nextEnd = (i + 1) * segTime;
+          const np = gsap.utils.clamp(0, 1, (self.progress - nextStart) / segTime);
+          gsap.set(card, { opacity: 1 - np * 0.3, scale: 1 - np * 0.05, yPercent: 0 });
+        }
+      }
+    });
+  }
+});
+
+/* ========== 7. HORIZONTAL FILM STRIP ========== */
+const filmTrack = document.getElementById('filmTrack');
+const panels = gsap.utils.toArray('.film-panel');
+gsap.to(panels, {
+  xPercent: -100 * (panels.length - 1), ease: "none",
+  scrollTrigger: { trigger: "#filmSection", pin: true, scrub: 1, snap: 1 / (panels.length - 1), end: () => `+=${filmTrack.scrollWidth - window.innerWidth + window.innerWidth * 0.08}` }
+});
+
+/* ========== 8. TEXT WIPE ========== */
+const wipeText = document.getElementById('wipeText');
+const words = wipeText.textContent.split(' ');
+wipeText.innerHTML = words.map(w => `<span class="word">${w}</span>`).join(' ');
+gsap.to('#wipeText .word', { color: '#0F0D0A', webkitTextStroke: '0px transparent', stagger: 0.05, ease: 'none',
+  scrollTrigger: { trigger: "#wipeSection", start: "top 80%", end: "center 40%", scrub: true } });
+gsap.to('#wipeOverlay', { scaleY: 1, ease: 'none',
+  scrollTrigger: { trigger: "#wipeSection", start: "center 30%", end: "bottom top", scrub: true } });
+
+/* ========== 9. FOOTER REVEAL ========== */
+ScrollTrigger.create({ trigger: '#footerTitle', start: 'top 80%', once: true,
+  onEnter: () => { gsap.to('#footerTitle .line-inner', { yPercent: 0, duration: 1.4, ease: 'expo.out', stagger: 0.15 }); } });
+
+/* ========== 10. MAGNETIC BUTTON ========== */
+const magBtn = document.getElementById('magneticBtn');
+magBtn.addEventListener('mousemove', (e) => { const r=magBtn.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;gsap.to(magBtn,{x:x*.4,y:y*.6,duration:.4,ease:'power2.out'}); });
+magBtn.addEventListener('mouseleave', () => { gsap.to(magBtn, { x:0, y:0, duration:1, ease:'elastic.out(1,0.3)' }); });
+
+/* ========== 11. CLOCK ========== */
+function updateClock() { const d=new Date();document.getElementById('liveTime').textContent=d.toLocaleTimeString('en-US',{hour12:false})+' UTC'; }
+setInterval(updateClock,1000);updateClock();
+</script>
 </body>
 </html>

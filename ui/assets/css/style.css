@@ -1117,16 +1117,37 @@ nav{
     
 }
 
-@media(max-width:600px){
- #loader h1{
-    font-size: 6vw;
-}
+    @media(max-width:600px){
+        #loader h1{ font-size: 10vw; }
+        nav{ padding: 3vw 2vw; }
+        nav img{ height: 22px; }
+        #left h3{ width: 80%; font-size: 3.5vw; line-height: 4.5vw; }
+        #page2-bottom{ flex-direction: column; gap: 4vh; padding: 10vw 6vw; }
+        #page2-bottom h1{ width: 100%; font-size: 5vw; line-height: 6vw; }
+        #bottom-part2{ width: 100%; top: 0; }
+        #bottom-part2 img, #bottom-part2 > div{ height: 25vh; }
+        #black-box{ flex-direction: column; height: auto; padding: 6vw 0; }
+        #black-box #tab-sec{ width: 100%; padding: 4vh 6vw; }
+        #black-box img{ width: 100%; height: 40vh; }
+        #desc{ width: 100%; font-size: 3vw; }
+        #page4{ padding: 8vw 0; min-height: auto; }
+        .elem{ height: auto; padding: 3vw 0; }
+        #proj h2{ font-size: 5vw; }
+        #proj div h4{ font-size: 3.5vw; }
+        #but{ width: 50%; }
+        #footer{ height: 70vh; }
+    }
 
-}
-
-
-
-
+    @media(min-width:601px) and (max-width:1100px){
+        #center{ height: auto; padding-bottom: 6vw; }
+        #left h3{ width: 35vw; font-size: 2vw; line-height: 2.8vw; }
+        #black-box{ height: auto; padding: 4vw 0; }
+        #black-box #tab-sec{ width: 55%; }
+        #black-box img{ width: 45%; height: auto; max-height: 70vh; }
+        #desc{ width: 80%; font-size: 1.4vw; }
+        #page2-bottom h1{ width: 55%; font-size: 3vw; line-height: 3.5vw; }
+        #bottom-part2{ width: 30vw; }
+    }
 
 
 

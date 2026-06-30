@@ -53,6 +53,22 @@ AgentOS lets anyone deploy autonomous AI agents on Sui that:
 
 **Package:** `0x8be6a574ed9711fc0815e5821358eeb9fd0b269c1c5aa399338c6da786c8f9de`
 
+### Verifiable On-Chain Transactions
+
+All operations submit real transactions on Sui testnet. Judges can verify every TX on SuiVision:
+
+| Transaction | Digest | SuiVision |
+|---|---|---|
+| Package published (4 modules) | `HNwuoagayN7...` | [View](https://testnet.suivision.xyz/txblock/HNwuoagayN7YcMVSPWZ11dBAviejcF4XdG7SesZCcPpZ) |
+| Agent deployed via factory | `5KdueWK7fWH...` | [View](https://testnet.suivision.xyz/txblock/5KdueWK7fWH9BaDXFq5kGLFYZ5dNR9cTuQuFxEan5qK) |
+| Agent transfer (0.001 SUI) | `4ZA1G7A8btk...` | [View](https://testnet.suivision.xyz/txblock/4ZA1G7A8btk9iuLXgGJJGwt5jKMjSHiA6v7ppVPPUWGq) |
+| Wallet created (AgentWallet) | `FQ1s56HMV1Z...` | [View](https://testnet.suivision.xyz/txblock/FQ1s56HMV1Zi3w2A1opAGzJqmxCq7htSjea4fgaPdvjt) |
+| Agent deployed (AgentEntry) | `Hj7asve32xZk...` | [View](https://testnet.suivision.xyz/txblock/Hj7asve32xZkUhYFtBC82NuP6dHgP9FYHyKUVkAHq3Ge) |
+| Real agent transfer | `qKgTLJhiyfqa...` | [View](https://testnet.suivision.xyz/txblock/qKgTLJhiyfqaUUxVK3LJGq2DbUY3spAKegSyPY9UWUS) |
+| Factory deploy (Trader wallet) | `Gk55eX6NbJA...` | [View](https://testnet.suivision.xyz/txblock/Gk55eX6NbJAevwm25zw6ttVEVNCcHt72uoB3DfVqzSNq) |
+
+**Wallet:** `0xfc7567d27098037e971f8d4d4c06a96f4ea51cf5da0149e7429033446019503c` (0.87 SUI on testnet)
+
 ## Three Agent Types
 
 ### Yield Agent
@@ -104,6 +120,9 @@ Open http://localhost:8420
 ## Tech Stack
 
 - **Blockchain:** Sui Testnet (Move contracts, RPC, PTBs)
+  - Package: [`0x8be6...f9de`](https://testnet.suivision.xyz/package/0x8be6a574ed9711fc0815e5821358eeb9fd0b269c1c5aa399338c6da786c8f9de)
+  - Wallet: [`0xfc75...503c`](https://testnet.suivision.xyz/address/0xfc7567d27098037e971f8d4d4c06a96f4ea51cf5da0149e7429033446019503c)
+  - Epoch 1146, 3.67B transactions
 - **AI:** Groq API (llama-3.3-70b-versatile, json_object mode)  
 - **Storage:** Walrus (content-addressed blob logs)
 - **Market Data:** CoinGecko (real-time SUI price)

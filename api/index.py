@@ -51,4 +51,7 @@ async def serve(full_path: str = ""):
     fp = UI_DIR / (full_path or "index.html")
     if fp.is_file():
         return FileResponse(fp)
+    html_fp = UI_DIR / (full_path + ".html")
+    if html_fp.is_file():
+        return FileResponse(html_fp)
     return FileResponse(UI_DIR / "index.html")

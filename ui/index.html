@@ -70,7 +70,6 @@
             .agc { padding: 5vw 3vw; }
             #feed-container { grid-template-columns: 1fr; }
             #live-feed-section { padding: 8vw 4vw; }
-            .nav-wallet-btn { display: none; }
         }
         @media(max-width:600px) {
             .feed-card { padding: 14px; }
@@ -239,13 +238,9 @@
         var walletBtn = document.getElementById("walletBtn");
         var walletAddr = "";
         function findWallet() {
-            var known = ["slushWallet", "suiWallet", "suietWallet", "martianWallet", "ethosWallet", "surfWallet"];
-            for (var i = 0; i < known.length; i++) {
-                var w = window[known[i]];
-                if (w && typeof w.requestAccounts === "function") return w;
-            }
             for (var key in window) {
-                if (key.match(/sui|wallet|mart/i) && window[key] && typeof window[key].requestAccounts === "function") return window[key];
+                var w = window[key];
+                if (w && typeof w === "object" && typeof w.requestAccounts === "function") return w;
             }
             return null;
         }

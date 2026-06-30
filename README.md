@@ -130,14 +130,6 @@ Open http://localhost:8420
 - **Frontend:** Vanilla JS with GSAP animations
 - **Deployment:** Vercel (serverless) + local (persistent agents)
 
-## Why It Wins
-
-- **All real data** — zero mock. Live Sui RPC, CoinGecko prices, real wallet balance
-- **On-chain deployed** — 4 Move modules live on testnet with verified TX
-- **LLM-powered decisions** — Groq llama-3.3-70b with structured JSON responses
-- **Verifiable audit trail** — Every decision hashed and logged to Walrus
-- **Programmable guardrails** — On-chain constraints prevent rogue agent behavior
-- **Works end-to-end** — From wallet connection to deploy to live SSE monitoring
 
 ## License
 

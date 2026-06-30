@@ -131,32 +131,21 @@
         <div class="result" id="result"></div>
         <a href="index.html" class="back-link">&larr; Back to Home</a>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@mysten/dapp-kit@0.14.0/dist/dapp-kit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mysten/sui@1.18.0/dist/sui.min.js"></script>
     <script>
         var API = window.location.origin;
         var walletBtn = document.getElementById("walletBtn");
         var walletAddress = "";
 
         function toggleWallet() {
-            if (walletAddress) {
-                walletAddress = "";
-                updateWalletUI();
-                return;
-            }
-            // Try Sui Wallet
-            if (window.suiWallet) {
-                window.suiWallet.requestAccounts().then(function(accounts) {
-                    if (accounts && accounts.length) {
-                        walletAddress = accounts[0];
-                        updateWalletUI();
-                    }
-                }).catch(function() { alert("Please install Sui Wallet extension"); });
-            } else {
-                alert("Sui Wallet not detected. Install from chrome web store to connect.\n\nYou can still deploy agents without a wallet — they will run on the server.");
-            }
+            if (walletAddress) { disconnect(); return; }
+            var w = getWallet();
+            if (!w) { walletBtn.textContent = "No wallet found"; walletBtn.style.opacity = "0.5"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; walletBtn.style.opacity = "1"; }, 2000); return; }
+            w.requestAccounts().then(function(accounts) {
+                if (accounts && accounts.length) { walletAddress = accounts[0]; updateWalletUI(); }
+            }).catch(function() { walletBtn.textContent = "Denied"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; }, 1500); });
         }
+        function disconnect() { walletAddress = ""; updateWalletUI(); }
+        function getWallet() { return window.suiWallet || window.suietWallet || window.martianWallet || null; }
 
         function updateWalletUI() {
             if (walletAddress) {
@@ -170,12 +159,11 @@
 
         // Auto-detect Sui wallet
         setTimeout(function() {
-            if (window.suiWallet) {
-                window.suiWallet.getAccounts().then(function(acc) {
-                    if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
-                }).catch(function() {});
-            }
-        }, 1000);
+            var w = getWallet();
+            if (w) w.getAccounts().then(function(acc) {
+                if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
+            }).catch(function() {});
+        }, 800);
 
         // Preview update
         var at = document.getElementById("agentType");

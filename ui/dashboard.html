@@ -186,29 +186,21 @@
         var evCount = 0;
         var userWallet = "";
 
-        // Wallet connect
+        function findWallet() { return window.suiWallet || window.suietWallet || window.martianWallet || null; }
+
         setInterval(function() {
-            if (window.suiWallet) {
-                window.suiWallet.getAccounts().then(function(a) {
-                    if (a && a.length) {
-                        userWallet = a[0];
-                        document.getElementById("userWallet").innerHTML =
-                            '<a target="_blank" style="color:var(--green);font-family:monospace;font-size:10px" href="https://testnet.suivision.xyz/address/' + userWallet + '">' +
-                            userWallet.substring(0,6) + '...' + userWallet.slice(-4) + ' ↗</a>';
-                    }
-                }).catch(function(){});
-            }
+            var w = findWallet();
+            if (w) w.getAccounts().then(function(a) {
+                if (a && a.length) {
+                    userWallet = a[0];
+                    document.getElementById("userWallet").innerHTML =
+                        '<a target="_blank" style="color:var(--green);font-family:monospace;font-size:10px" href="https://testnet.suivision.xyz/address/' + userWallet + '">' +
+                        userWallet.substring(0,6) + '...' + userWallet.slice(-4) + ' ↗</a>';
+                }
+            }).catch(function(){});
         }, 3000);
 
-        function requestWallet() {
-            if (window.suiWallet) {
-                window.suiWallet.requestAccounts().then(function(a) {
-                    if (a && a.length) { userWallet = a[0]; }
-                }).catch(function() { alert("Install Sui Wallet extension from chrome web store."); });
-            } else {
-                alert("No Sui Wallet detected. Install Sui Wallet browser extension to connect.\n\nThe dashboard shows the agent's backend wallet — separate from your own.");
-            }
-        }
+        function requestWallet() {}
 
         function formatGuardrails(g, type) {
             var parts = [];

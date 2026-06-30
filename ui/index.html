@@ -238,16 +238,26 @@
     <script>
         var walletBtn = document.getElementById("walletBtn");
         var walletAddr = "";
-        function toggleWallet() {
-            if (walletAddr) { walletAddr = ""; updateW(); return; }
-            if (window.suiWallet) {
-                window.suiWallet.requestAccounts().then(function(a) {
-                    if (a && a.length) { walletAddr = a[0]; updateW(); }
-                }).catch(function() { alert("Install Sui Wallet extension"); });
-            } else {
-                alert("Sui Wallet not detected. Install from chrome web store.\nYou can still deploy agents — they run on the server.");
-            }
+        function findWallet() {
+            if (window.suiWallet) return window.suiWallet;
+            if (window.suietWallet) return window.suietWallet;
+            if (window.martianWallet) return window.martianWallet;
+            return null;
         }
+        function toggleWallet() {
+            if (walletAddr) { disconnect(); return; }
+            var w = findWallet();
+            if (!w) {
+                walletBtn.textContent = "No wallet";
+                walletBtn.style.opacity = "0.5";
+                setTimeout(function(){ walletBtn.textContent = "Connect"; walletBtn.style.opacity = "1"; }, 2000);
+                return;
+            }
+            w.requestAccounts().then(function(a) {
+                if (a && a.length) { walletAddr = a[0]; updateW(); }
+            }).catch(function() { walletBtn.textContent = "Denied"; setTimeout(function(){ walletBtn.textContent = "Connect"; }, 1500); });
+        }
+        function disconnect() { walletAddr = ""; updateW(); }
         function updateW() {
             if (walletAddr) {
                 walletBtn.textContent = walletAddr.substring(0,4) + ".." + walletAddr.slice(-4);
@@ -255,9 +265,8 @@
             } else { walletBtn.textContent = "Connect"; walletBtn.classList.remove("connected"); }
         }
         setTimeout(function() {
-            if (window.suiWallet) window.suiWallet.getAccounts().then(function(a) {
-                if (a && a.length) { walletAddr = a[0]; updateW(); }
-            }).catch(function() {});
+            var w = findWallet();
+            if (w) w.getAccounts().then(function(a) { if (a && a.length) { walletAddr = a[0]; updateW(); } }).catch(function(){});
         }, 800);
 
         // Agent bar — shows default agents

@@ -239,9 +239,14 @@
         var walletBtn = document.getElementById("walletBtn");
         var walletAddr = "";
         function findWallet() {
-            if (window.suiWallet) return window.suiWallet;
-            if (window.suietWallet) return window.suietWallet;
-            if (window.martianWallet) return window.martianWallet;
+            var known = ["slushWallet", "suiWallet", "suietWallet", "martianWallet", "ethosWallet", "surfWallet"];
+            for (var i = 0; i < known.length; i++) {
+                var w = window[known[i]];
+                if (w && typeof w.requestAccounts === "function") return w;
+            }
+            for (var key in window) {
+                if (key.match(/sui|wallet|mart/i) && window[key] && typeof window[key].requestAccounts === "function") return window[key];
+            }
             return null;
         }
         function toggleWallet() {

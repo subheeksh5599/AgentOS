@@ -136,22 +136,54 @@
         var walletBtn = document.getElementById("walletBtn");
         var walletAddress = "";
 
-        function toggleWallet() {
-            if (walletAddress) { disconnect(); return; }
-            var w = getWallet();
-            if (!w) { walletBtn.textContent = "No wallet found"; walletBtn.style.opacity = "0.5"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; walletBtn.style.opacity = "1"; }, 2000); return; }
-            w.requestAccounts().then(function(accounts) {
-                if (accounts && accounts.length) { walletAddress = accounts[0]; updateWalletUI(); }
-            }).catch(function() { walletBtn.textContent = "Denied"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; }, 1500); });
-        }
-        function disconnect() { walletAddress = ""; updateWalletUI(); }
-        function getWallet() {
+        function findSuiWallet() {
+            if (window.suiWallet && window.suiWallet.features && window.suiWallet.features['standard:connect']) return window.suiWallet;
+            if (window.martian && typeof window.martian.connect === 'function') return window.martian;
+            if (window.suiet && typeof window.suiet.connect === 'function') return window.suiet;
             for (var key in window) {
-                var w = window[key];
-                if (w && typeof w === "object" && typeof w.requestAccounts === "function") return w;
+                try { var w = window[key]; if (w && typeof w === 'object' && typeof w.requestAccounts === 'function') return w; } catch(e) {}
             }
             return null;
         }
+
+        function getAccounts(w) {
+            if (w === window.suiWallet && w.features && w.features['standard:connect']) {
+                return Promise.resolve(w.accounts.map(function(a) { return a.address; }));
+            }
+            if (w === window.martian && typeof w.getAccounts === 'function') return w.getAccounts();
+            if (w === window.suiet && typeof w.getAccounts === 'function') return w.getAccounts();
+            if (typeof w.requestAccounts === 'function') return w.requestAccounts();
+            if (typeof w.getAccounts === 'function') return w.getAccounts();
+            return Promise.resolve([]);
+        }
+
+        function requestAccounts(w) {
+            if (w === window.suiWallet && w.features && w.features['standard:connect']) {
+                return w.features['standard:connect'].connect().then(function() {
+                    return w.accounts.map(function(a) { return a.address; });
+                });
+            }
+            if (w === window.martian && typeof w.connect === 'function') {
+                return w.connect().then(function(r) { return [r.address]; });
+            }
+            if (w === window.suiet && typeof w.connect === 'function') {
+                return w.connect().then(function(r) { return [r.address]; });
+            }
+            if (typeof w.requestAccounts === 'function') return w.requestAccounts();
+            return Promise.reject('No accounts method');
+        }
+
+        function toggleWallet() {
+            if (walletAddress) { disconnect(); return; }
+            var w = findSuiWallet();
+            if (!w) { walletBtn.textContent = "No wallet found"; walletBtn.style.opacity = "0.5"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; walletBtn.style.opacity = "1"; }, 2000); return; }
+            requestAccounts(w).then(function(accounts) {
+                if (accounts && accounts.length) { walletAddress = accounts[0]; updateWalletUI(); }
+            }).catch(function(err) {
+                walletBtn.textContent = "Denied"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; }, 1500);
+            });
+        }
+        function disconnect() { walletAddress = ""; updateWalletUI(); }
 
         function updateWalletUI() {
             if (walletAddress) {
@@ -163,13 +195,18 @@
             }
         }
 
-        // Auto-detect Sui wallet
         setTimeout(function() {
-            var w = getWallet();
-            if (w) w.getAccounts().then(function(acc) {
+            var w = findSuiWallet();
+            if (w) getAccounts(w).then(function(acc) {
                 if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
             }).catch(function() {});
         }, 800);
+        window.addEventListener('wallet-standard:app-ready', function() {
+            var w = findSuiWallet();
+            if (w) getAccounts(w).then(function(acc) {
+                if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
+            }).catch(function() {});
+        });
 
         // Preview update
         var at = document.getElementById("agentType");

@@ -237,23 +237,58 @@
     <script>
         var walletBtn = document.getElementById("walletBtn");
         var walletAddr = "";
-        function findWallet() {
+
+        function findSuiWallet() {
+            // Sui Wallet (Mysten) - injected directly on window
+            if (window.suiWallet && window.suiWallet.features && window.suiWallet.features['standard:connect']) return window.suiWallet;
+            // Martian
+            if (window.martian && typeof window.martian.connect === 'function') return window.martian;
+            // Suiet
+            if (window.suiet && typeof window.suiet.connect === 'function') return window.suiet;
+            // Generic EIP-1193 (MetaMask-style)
             for (var key in window) {
-                var w = window[key];
-                if (w && typeof w === "object" && typeof w.requestAccounts === "function") return w;
+                try { var w = window[key]; if (w && typeof w === 'object' && typeof w.requestAccounts === 'function') return w; } catch(e) {}
             }
             return null;
         }
+
+        function getAccounts(w) {
+            if (w === window.suiWallet && w.features && w.features['standard:connect']) {
+                return Promise.resolve(w.accounts.map(function(a) { return a.address; }));
+            }
+            if (w === window.martian && typeof w.getAccounts === 'function') return w.getAccounts();
+            if (w === window.suiet && typeof w.getAccounts === 'function') return w.getAccounts();
+            if (typeof w.requestAccounts === 'function') return w.requestAccounts();
+            if (typeof w.getAccounts === 'function') return w.getAccounts();
+            return Promise.resolve([]);
+        }
+
+        function requestAccounts(w) {
+            if (w === window.suiWallet && w.features && w.features['standard:connect']) {
+                return w.features['standard:connect'].connect().then(function() {
+                    return w.accounts.map(function(a) { return a.address; });
+                });
+            }
+            if (w === window.martian && typeof w.connect === 'function') {
+                return w.connect().then(function(r) { return [r.address]; });
+            }
+            if (w === window.suiet && typeof w.connect === 'function') {
+                return w.connect().then(function(r) { return [r.address]; });
+            }
+            if (typeof w.requestAccounts === 'function') return w.requestAccounts();
+            return Promise.reject('No accounts method');
+        }
+
         function toggleWallet() {
             if (walletAddr) { disconnect(); return; }
-            var w = findWallet();
+            var w = findSuiWallet();
             if (!w) {
-                walletBtn.textContent = "No wallet";
+                walletBtn.textContent = "No wallet found";
                 walletBtn.style.opacity = "0.5";
                 setTimeout(function(){ walletBtn.textContent = "Connect"; walletBtn.style.opacity = "1"; }, 2000);
                 return;
             }
-            w.requestAccounts().then(function(a) {
+            requestAccounts(w).then(function(a) {
                 if (a && a.length) { walletAddr = a[0]; updateW(); }
             }).catch(function() { walletBtn.textContent = "Denied"; setTimeout(function(){ walletBtn.textContent = "Connect"; }, 1500); });
         }
@@ -264,10 +299,16 @@
                 walletBtn.classList.add("connected");
             } else { walletBtn.textContent = "Connect"; walletBtn.classList.remove("connected"); }
         }
+        // Auto-detect on load
         setTimeout(function() {
-            var w = findWallet();
-            if (w) w.getAccounts().then(function(a) { if (a && a.length) { walletAddr = a[0]; updateW(); } }).catch(function(){});
+            var w = findSuiWallet();
+            if (w) getAccounts(w).then(function(a) { if (a && a.length) { walletAddr = a[0]; updateW(); } }).catch(function(){});
         }, 800);
+        // Listen for late wallet injection
+        window.addEventListener('wallet-standard:app-ready', function() {
+            var w = findSuiWallet();
+            if (w) getAccounts(w).then(function(a) { if (a && a.length) { walletAddr = a[0]; updateW(); } }).catch(function(){});
+        });
 
         // Agent bar — shows default agents
         var defaults = [

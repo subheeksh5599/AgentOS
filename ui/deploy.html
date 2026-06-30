@@ -178,16 +178,15 @@
             var w = findSlushWallet();
             if (!w) return;
             if (w._isMartian) {
-                try { var acc = await window.martian.getAccounts(); if (acc && acc.length) { window.walletAddress = acc[0]; updateWalletUI(); console.log("[Wallet] Auto-detected Martian: " + window.walletAddress); } } catch(e) {}
+                try { var acc = await window.martian.getAccounts(); if (acc && acc.length) { saveWallet(acc[0]); console.log("[Wallet] Auto-detected Martian: " + window.walletAddress); } } catch(e) {}
                 return;
             }
             if (w._isSuiet) {
-                try { var acc = await window.suiet.getAccounts(); if (acc && acc.length) { window.walletAddress = acc[0]; updateWalletUI(); console.log("[Wallet] Auto-detected Suiet: " + window.walletAddress); } } catch(e) {}
+                try { var acc = await window.suiet.getAccounts(); if (acc && acc.length) { saveWallet(acc[0]); console.log("[Wallet] Auto-detected Suiet: " + window.walletAddress); } } catch(e) {}
                 return;
             }
             if (w.accounts && w.accounts.length > 0) {
-                window.walletAddress = w.accounts[0].address;
-                updateWalletUI();
+                saveWallet(w.accounts[0].address);
                 console.log("[Wallet] Auto-detected " + w.name + ": " + window.walletAddress);
             }
         }
@@ -199,7 +198,7 @@
             walletBtn.style.opacity = "0.7";
             try {
                 var accounts = await doConnect();
-                if (accounts && accounts.length) { window.walletAddress = accounts[0]; updateWalletUI(); }
+                if (accounts && accounts.length) { saveWallet(accounts[0]); }
                 else { walletBtn.textContent = "No accounts"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; }, 1500); }
             } catch(e) {
                 console.log("[Wallet] Error: " + (e.message || e));
@@ -208,7 +207,16 @@
             }
         };
 
-        function disconnect() { window.walletAddress = ""; updateWalletUI(); }
+        function saveWallet(addr) {
+            window.walletAddress = addr;
+            if (addr) {
+                try { localStorage.setItem('agentos_wallet', addr); } catch(e) {}
+            } else {
+                try { localStorage.removeItem('agentos_wallet'); } catch(e) {}
+            }
+            updateWalletUI();
+        }
+        function disconnect() { saveWallet(""); }
 
         function updateWalletUI() {
             if (window.walletAddress) {
@@ -228,6 +236,11 @@
             console.log("[Wallet] wallet-standard:app-ready fired");
             setTimeout(autoDetect, 300);
         });
+
+        try {
+            var saved = localStorage.getItem('agentos_wallet');
+            if (saved) { saveWallet(saved); console.log("[Wallet] Restored from localStorage: " + saved); }
+        } catch(e) {}
     </script>
     <script>
 

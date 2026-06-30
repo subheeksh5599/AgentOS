@@ -6,3 +6,4 @@ ui/dist/
 data/state.json
 .vercel/
 .env
+.vercel

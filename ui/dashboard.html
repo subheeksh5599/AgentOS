@@ -181,32 +181,59 @@
         <div class="event-feed" id="eventFeed"></div>
     </main>
 
-    <script>
-        var API = origin;
-        var evCount = 0;
-        var userWallet = "";
+    <script type="module">
+        import { getWallets } from 'https://esm.sh/@mysten/wallet-standard@latest';
+
+        var _wallets = [];
+        function refreshWallets() {
+            try { _wallets = getWallets().get(); } catch(e) { _wallets = []; }
+        }
 
         function findWallet() {
-            for (var key in window) {
-                var w = window[key];
-                if (w && typeof w === "object" && typeof w.requestAccounts === "function") return w;
+            refreshWallets();
+            for (var i = 0; i < _wallets.length; i++) {
+                if (_wallets[i].features && _wallets[i].features['standard:connect']) return _wallets[i];
             }
+            if (window.martian && typeof window.martian.connect === 'function') return { name: 'Martian', _isMartian: true };
+            if (window.suiet && typeof window.suiet.connect === 'function') return { name: 'Suiet', _isSuiet: true };
             return null;
         }
 
-        setInterval(function() {
+        async function getWalletAddr() {
             var w = findWallet();
-            if (w) w.getAccounts().then(function(a) {
-                if (a && a.length) {
-                    userWallet = a[0];
-                    document.getElementById("userWallet").innerHTML =
-                        '<a target="_blank" style="color:var(--green);font-family:monospace;font-size:10px" href="https://testnet.suivision.xyz/address/' + userWallet + '">' +
-                        userWallet.substring(0,6) + '...' + userWallet.slice(-4) + ' ↗</a>';
-                }
-            }).catch(function(){});
-        }, 3000);
+            if (!w) return null;
+            if (w._isMartian) { try { var a = await window.martian.getAccounts(); return a && a[0]; } catch(e) { return null; } }
+            if (w._isSuiet) { try { var a = await window.suiet.getAccounts(); return a && a[0]; } catch(e) { return null; } }
+            if (w.accounts && w.accounts.length > 0) return w.accounts[0].address;
+            return null;
+        }
 
-        function requestWallet() {}
+        async function updateUserWallet() {
+            var addr = null;
+            // Try live wallet first
+            try { addr = await getWalletAddr(); } catch(e) {}
+            // Fall back to localStorage
+            if (!addr) {
+                try { addr = localStorage.getItem('agentos_wallet'); } catch(e) {}
+            }
+            // Save if live wallet gave us one
+            if (addr) {
+                try { localStorage.setItem('agentos_wallet', addr); } catch(e) {}
+                document.getElementById("userWallet").innerHTML =
+                    '<a target="_blank" style="color:var(--green);font-family:monospace;font-size:10px" href="https://testnet.suivision.xyz/address/' + addr + '">' +
+                    addr.substring(0,6) + '...' + addr.slice(-4) + ' ↗</a>';
+            }
+        }
+
+        window.updateUserWallet = updateUserWallet;
+        updateUserWallet();
+
+        // Retry if wallet registers late
+        window.addEventListener('wallet-standard:app-ready', function() { updateUserWallet(); });
+    </script>
+    <script>
+        var API = origin;
+        var evCount = 0;
 
         function formatGuardrails(g, type) {
             var parts = [];

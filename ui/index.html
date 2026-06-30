@@ -298,7 +298,7 @@
             if (w._isMartian) {
                 try {
                     var acc = await window.martian.getAccounts();
-                    if (acc && acc.length) { walletAddr = acc[0]; updateW(); console.log("[Wallet] Auto-detected Martian: " + walletAddr); }
+                    if (acc && acc.length) { saveWallet(acc[0]); console.log("[Wallet] Auto-detected Martian: " + walletAddr); }
                 } catch(e) {}
                 return;
             }
@@ -311,8 +311,7 @@
             }
             // Wallet Standard - check already-connected accounts
             if (w.accounts && w.accounts.length > 0) {
-                walletAddr = w.accounts[0].address;
-                updateW();
+                saveWallet(w.accounts[0].address);
                 console.log("[Wallet] Auto-detected " + w.name + ": " + walletAddr);
             }
         }
@@ -325,7 +324,7 @@
             try {
                 var accounts = await doConnect();
                 console.log("[Wallet] Got accounts: " + JSON.stringify(accounts));
-                if (accounts && accounts.length) { walletAddr = accounts[0]; updateW(); }
+                if (accounts && accounts.length) { saveWallet(accounts[0]); }
                 else { walletBtn.textContent = "No accounts"; setTimeout(function(){ walletBtn.textContent = "Connect"; }, 1500); }
             } catch(e) {
                 console.log("[Wallet] Error: " + (e.message || e));
@@ -335,7 +334,16 @@
             }
         };
 
-        function disconnect() { walletAddr = ""; updateW(); }
+        function saveWallet(addr) {
+            walletAddr = addr;
+            if (addr) {
+                try { localStorage.setItem('agentos_wallet', addr); } catch(e) {}
+            } else {
+                try { localStorage.removeItem('agentos_wallet'); } catch(e) {}
+            }
+            updateW();
+        }
+        function disconnect() { saveWallet(""); }
         function updateW() {
             if (walletAddr) {
                 walletBtn.textContent = walletAddr.substring(0,4) + ".." + walletAddr.slice(-4);
@@ -354,6 +362,12 @@
             console.log("[Wallet] wallet-standard:app-ready event fired");
             setTimeout(autoDetect, 300);
         });
+
+        // Restore from localStorage (from previous page visit)
+        try {
+            var saved = localStorage.getItem('agentos_wallet');
+            if (saved) { saveWallet(saved); console.log("[Wallet] Restored from localStorage: " + saved); }
+        } catch(e) {}
     </script>
     <script>
         // Agent bar — shows default agents

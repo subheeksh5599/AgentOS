@@ -67,6 +67,27 @@ async def event_history(limit: int = 50):
 
 # ── Agent Management ──
 
+@router.get("/market")
+async def market_data():
+    from runtime.sui_client import get_market_data, get_network_status, get_gas_price, WALLET_ADDRESS
+    try:
+        md = get_market_data()
+        ns = get_network_status()
+        gp = get_gas_price()
+    except Exception:
+        md = None; ns = None; gp = None
+    return {
+        "sui_price_usd": md.sui_price_usd if md else 0,
+        "price_change_24h_pct": md.price_change_24h_pct if md else 0,
+        "volume_24h_usd": md.volume_24h_usd if md else 0,
+        "market_cap_usd": md.market_cap_usd if md else 0,
+        "high_24h": md.high_24h if md else 0,
+        "low_24h": md.low_24h if md else 0,
+        "chain": {"epoch": ns.epoch if ns else None, "checkpoint": ns.checkpoint if ns else None, "total_txns": ns.total_txns if ns else None, "gas_price": gp},
+        "wallet_address": WALLET_ADDRESS,
+    }
+
+
 @router.get("/agents")
 async def agent_status():
     from runtime.sui_client import get_wallet_state, get_network_status, WALLET_ADDRESS

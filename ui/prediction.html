@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Agent — AgentOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root { --bg: #EFEAE3; --accent: #3B82F6; --muted: #6A6358; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Space Grotesk', -apple-system, sans-serif; min-height: 100vh; }
+        nav { padding: 20px 4vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; background: #fff; }
+        .nav-l { font-weight: 900; font-size: 22px; color: #1a1a1a; }
+        .nav-l span { color: #E63A1B; }
+        a { color: inherit; text-decoration: none; }
+        .nav-r { display: flex; gap: 18px; align-items: center; font-size: 13px; font-weight: 600; }
+        .nav-r a { color: #555; }
+        .nav-r a.active { color: var(--accent); }
+        .nav-r a:hover { color: #000; }
+
+        main { max-width: 900px; margin: 0 auto; padding: 48px 20px; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; padding: 6px 16px; border-radius: 50px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+        h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 900; margin-bottom: 12px; color: #1a1a1a; }
+        .sub { font-size: 17px; color: #555; line-height: 1.6; margin-bottom: 40px; max-width: 600px; }
+
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 40px; }
+        .data-card { background: #fff; border: 1px solid #e5e2dc; border-radius: 14px; padding: 20px; }
+        .data-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+        .data-card .val { font-size: 24px; font-weight: 900; color: #1a1a1a; }
+
+        .kelly-box { background: #fff; border: 1px solid #e5e2dc; border-radius: 14px; padding: 24px; margin-bottom: 20px; }
+        .kelly-box h3 { font-size: 16px; margin-bottom: 14px; color: var(--accent); }
+        .kelly-box .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+        @media(max-width:600px) { .kelly-box .form-row { grid-template-columns: 1fr 1fr; } }
+        .kelly-box input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .kelly-box label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); display: block; margin-bottom: 4px; font-weight: 700; }
+        .kelly-box .calc-btn { padding: 10px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; font-family: inherit; }
+        .kelly-result { margin-top: 14px; padding: 12px; background: #f0f7ff; border-radius: 8px; font-size: 14px; display: none; }
+        .kelly-result.show { display: block; }
+
+        .config-box { background: #fff; border: 1px solid #e5e2dc; border-radius: 16px; padding: 28px; margin-bottom: 28px; }
+        .config-box h3 { font-size: 18px; margin-bottom: 20px; color: #1a1a1a; }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media(max-width:600px) { .config-grid { grid-template-columns: 1fr; } }
+        .config-grid input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; font-family: inherit; }
+        .config-grid label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); display: block; margin-bottom: 4px; }
+        .deploy-btn { width: 100%; margin-top: 20px; padding: 16px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .deploy-btn:hover:not(:disabled) { filter: brightness(0.9); }
+        .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result { margin-top: 16px; padding: 14px; border-radius: 10px; display: none; font-size: 14px; }
+        .result.ok { display: block; background: #d1fae5; color: #065f46; }
+        .result.err { display: block; background: #fee2e2; color: #991b1b; }
+        .back { display: block; text-align: center; margin-top: 40px; font-size: 13px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-l">Agent<span>OS</span></a>
+        <div class="nav-r">
+            <a href="/">Home</a>
+            <a href="/yield">Yield</a>
+            <a href="/trader">Trader</a>
+            <a href="/prediction" class="active">Prediction</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+    <main>
+        <div class="hero-badge">Prediction Agent</div>
+        <h1>Kelly Criterion Market Betting</h1>
+        <p class="sub">The Prediction Agent analyzes DeepBook Predict markets using live SUI price data and Groq llama-3.3-70b reasoning. It only bets when the estimated probability exceeds market-implied odds by your configured edge threshold, sizing positions according to the Kelly criterion.</p>
+
+        <div class="data-grid" id="dataGrid"></div>
+
+        <div class="kelly-box">
+            <h3>Kelly Criterion Calculator</h3>
+            <div class="form-row">
+                <div><label>Bankroll (SUI)</label><input id="kBankroll" type="number" value="10" step="0.1"></div>
+                <div><label>Your Estimate (%)</label><input id="kEst" type="number" value="55" min="1" max="99"></div>
+                <div><label>Market Odds (%)</label><input id="kOdds" type="number" value="40" min="1" max="99"></div>
+                <div><button class="calc-btn" onclick="calcKelly()">Calculate</button></div>
+            </div>
+            <div class="kelly-result" id="kellyResult"></div>
+        </div>
+
+        <div class="config-box">
+            <h3>Deploy Prediction Agent</h3>
+            <div class="config-grid">
+                <div><label>Agent Name</label><input id="name" value="My Prediction Agent"></div>
+                <div><label>Check Interval (seconds)</label><input id="interval" type="number" value="60" min="15" max="600"></div>
+                <div><label>Max Bet (SUI)</label><input id="maxBet" type="number" value="10"></div>
+                <div><label>Daily Spend (SUI)</label><input id="dailySpend" type="number" value="50"></div>
+                <div><label>Min Confidence (%)</label><input id="minConf" type="number" value="60" min="50" max="100"></div>
+                <div><label>Min Edge (%)</label><input id="minEdge" type="number" value="5" step="0.5"></div>
+            </div>
+            <button class="deploy-btn" id="deployBtn" onclick="deploy()">Deploy Prediction Agent</button>
+            <div class="result" id="result"></div>
+        </div>
+        <a href="/" class="back">Back to Home</a>
+    </main>
+    <script>
+        var API = origin;
+        async function fetchData() {
+            try {
+                var d = await (await fetch(API + "/api/runtime/agents")).json();
+                var g = document.getElementById("dataGrid");
+                g.innerHTML = "";
+                [["Balance", d.wallet ? d.wallet.balance_sui.toFixed(4) + " SUI" : "—", "", "green"],
+                 ["Epoch", d.chain ? d.chain.epoch : "—", d.chain ? d.chain.total_txns.toLocaleString() + " txns" : "", ""],
+                 ["Model", d.model || "llama-3.3-70b", "Groq API", ""],
+                 ["Package", (d.package_id || "").substring(0, 14) + "...", "Sui testnet", ""]].forEach(function(i) {
+                    var el = document.createElement("div"); el.className = "data-card";
+                    el.innerHTML = '<div class="label">' + i[0] + '</div><div class="val ' + (i[3] || "") + '">' + i[1] + '</div>' + (i[2] ? '<div class="subval">' + i[2] + '</div>' : "");
+                    g.appendChild(el);
+                });
+            } catch (e) {}
+        }
+        function calcKelly() {
+            var b = parseFloat(document.getElementById("kBankroll").value) || 10;
+            var e = parseFloat(document.getElementById("kEst").value) / 100 || 0.55;
+            var o = parseFloat(document.getElementById("kOdds").value) / 100 || 0.40;
+            var f = e - ((1 - e) / (o / (1 - o)));
+            f = Math.max(0, Math.min(f, 0.25));
+            var bet = b * f;
+            var el = document.getElementById("kellyResult");
+            el.className = "kelly-result show";
+            el.innerHTML = "Kelly fraction: <strong>" + (f * 100).toFixed(1) + "%</strong> of bankroll (" + bet.toFixed(2) + " SUI). " + (f > 0 ? "Edge detected: +" + ((e - o) * 100).toFixed(1) + "%." : "No edge. Do not bet.");
+        }
+        async function deploy() {
+            var btn = document.getElementById("deployBtn"); var res = document.getElementById("result");
+            btn.disabled = true; btn.textContent = "Deploying..."; res.className = "result";
+            try {
+                var r = await fetch(API + "/api/runtime/agents/deploy", {
+                    method: "POST", headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ name: document.getElementById("name").value || "Prediction", agent_type: "prediction",
+                        interval_seconds: parseInt(document.getElementById("interval").value) || 60,
+                        guardrails: { max_bet_sui: parseFloat(document.getElementById("maxBet").value) || 10,
+                            daily_spend_sui: parseFloat(document.getElementById("dailySpend").value) || 50,
+                            min_confidence_pct: parseFloat(document.getElementById("minConf").value) || 60 }})
+                });
+                var d = await r.json();
+                res.className = r.ok ? "result ok" : "result err";
+                res.innerHTML = r.ok ? "Deployed: " + d.agent_id : "Error: " + (d.detail || "failed");
+            } catch (e) { res.className = "result err"; res.textContent = e.message; }
+            btn.disabled = false; btn.textContent = "Deploy Prediction Agent";
+        }
+        calcKelly(); fetchData();
+    </script>
+</body>
+</html>

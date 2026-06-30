@@ -1,99 +1,124 @@
-<div align="center">
+# AgentOS — Operating System for On-Chain AI Agents
 
-# AgentOS
-
-**Move framework for autonomous AI agents on Sui.**
-
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
-[![Sui](https://img.shields.io/badge/Sui-Testnet-4da8ff)](https://sui.io)
-[![Language](https://img.shields.io/badge/Move-%E2%9C%93-blue)](https://sui.io/move)
-[![LLM](https://img.shields.io/badge/Groq-Llama%203.3%2070B-orange)](https://groq.com)
-[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20%2B%20Vite-informational)](https://vite.dev)
-[![Runtime](https://img.shields.io/badge/Runtime-Python%203.12%2B-yellow)](https://python.org)
-
-</div>
+**An autonomous DeFi agent platform on Sui. Deploy agents with programmable guardrails, verifiable execution logs, and LLM-powered decision making.**
 
 ---
 
-Programmable on-chain agents with Sui wallets, verifiable execution logs, and configurable guardrails. Write a strategy in Move, deploy it via a factory contract, and let the off-chain runtime handle LLM reasoning, chain-state polling, and transaction submission. Every decision is logged to Walrus as a content-addressed blob, making the full agent lifecycle auditable without trusting a centralized executor.
+## Problem
+
+DeFi is a 24/7 job. Normal users cannot:
+- Monitor yield pools around the clock to rebalance optimally
+- Scan order books in real-time for arbitrage opportunities  
+- Apply Kelly criterion math to prediction market bets manually
+- Trust that an automated strategy actually followed the rules
+
+**Manual DeFi is exhausting. Autonomous DeFi with verifiable guardrails is the solution.**
+
+## What AgentOS Does
+
+AgentOS lets anyone deploy autonomous AI agents on Sui that:
+
+| | |
+|---|---|
+| **Fetch** | Real on-chain state from Sui testnet RPC (balances, pools, epoch data) |
+| **Reason** | Groq llama-3.3-70b analyzes the state and returns structured JSON decisions |
+| **Guard** | On-chain guardrails (max TX, daily limit, allowed actions) prevent misbehavior |
+| **Execute** | Valid decisions are submitted via sponsored Programmable Transaction Blocks |
+| **Seal** | Every decision is logged immutably to Walrus as a content-addressed blob |
 
 ## Architecture
 
 ```
-zkLogin identity ──→ Agent Factory (PTB) ──→ Agent Wallet (guardrails)
-                                     │
-                                     ├── Agent Registry (on-chain index)
-                                     ├── Action Log (Walrus blobs)
-                                     │
-Off-chain runtime:
-  Sui RPC loop ──→ Groq LLM reasoning ──→ Guardrail validation ──→ Sponsored TX
-                                                              ──→ Walrus upload
-                                                              ──→ SSE stream to dashboard
+    ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+    │  Sui Testnet │────▶│  Python Agent │────▶│  Groq LLM   │
+    │  RPC + Move  │     │  Runtime      │     │  (llama-3.3) │
+    └─────────────┘     └──────┬────────┘     └─────────────┘
+                               │
+                    ┌──────────┼──────────┐
+                    ▼          ▼          ▼
+              ┌─────────┐ ┌───────┐ ┌──────────┐
+              │ Walrus  │ │  SSE  │ │  Sui TX  │
+              │ Logs    │ │ Feed  │ │ (PTB)    │
+              └─────────┘ └───────┘ └──────────┘
 ```
 
-## Sui primitives
+## On-Chain Contracts (Sui Testnet)
 
-| Primitive | Role |
-|-----------|------|
-| **Walrus** | Content-addressed blobs for agent decisions, execution traces, and model configuration. Immutable audit trail. |
-| **Seal** | Encrypted agent state and private keys at rest. Agents hold funds without exposing signing material on-chain. |
-| **DeepBook** | Unified liquidity across Spot, Margin, and Predict. Agents trade through a single interface rather than routing across fragmented venues. |
-| **zkLogin** | Google OAuth derives a Sui address. Agent identity is bound to a real user, not a detached keypair. |
-| **Sponsored TXs** | Gas station pattern for autonomous execution. Agents do not need to hold SUI for transaction fees. |
-| **PTBs** | Multi-step strategies execute atomically in one block. Swap, stake, and log in a single transaction. |
-| **Google AP2** | Agent-to-agent payment primitives. Sui is Google's launch partner for the AP2 protocol. |
+| Module | Purpose |
+|---|---|
+| `agent_wallet` | Programmable wallet with guardrails (max TX, daily limit, action bitmap, pause/resume) |
+| `agent_registry` | On-chain directory of all deployed agents with metadata |
+| `agent_factory` | One-click deploy: creates wallet + registers agent in single TX |
+| `action_log` | Immutable append-only audit trail with Walrus blob references |
 
-## Move modules
+**Package:** `0x8be6a574ed9711fc0815e5821358eeb9fd0b269c1c5aa399338c6da786c8f9de`
 
-```
-move/sources/
-├── agent_registry.move        Agent directory: registration, discovery, owner binding
-├── agent_wallet.move          Custody with programmable constraints per agent
-├── agent_factory.move         Single-PTB deploy: wallet + registry + funding + guardrails
-├── action_log.move            Append-only ledger with Walrus blob references
-└── examples/
-    ├── yield_agent.move       Pool scanning, APR threshold comparison, rebalancing
-    ├── trader_agent.move      Order book arbitrage, stop-loss/take-profit triggers
-    └── prediction_agent.move  Kelly criterion sizing, edge detection, confidence gating
-```
+## Three Agent Types
 
-## Off-chain runtime
+### Yield Agent
+Scans DeepBook LP pools. Rebalances when APR differential exceeds threshold. Auto-compounds rewards. Max 50% single-pool exposure.
 
-```
-runtime/
-├── llm.py              Groq client — one key drives three agents via distinct prompts
-├── sui_client.py       Sui testnet JSON-RPC: pool state, order books, predict markets
-├── walrus_client.py    Blob upload with content-addressed hashing
-├── event_bus.py        Async pub/sub with SSE fan-out for live dashboard
-├── api.py              FastAPI SSE endpoint for streaming agent events
-├── agents/
-│   ├── yield_agent.py    45s poll loop — fetch state → Groq → validate → execute
-│   ├── trader_agent.py   30s poll loop — order book analysis with profit threshold
-│   └── prediction_agent.py  60s poll loop — market scoring with confidence floor
-└── main.py             uvicorn entry point, agent lifecycle management
-```
+### Trader Agent
+Arbitrage across DeepBook Spot and Margin order books. Stop-loss and take-profit guardrails. Only executes when profit > fees.
 
-Agents poll Sui testnet for live chain state, pass structured context to Groq (Llama 3.3 70B via `response_format: json_object`), validate the returned decision against on-chain guardrails, and route valid actions through the sponsored transaction pipeline. Every step — decision, validation, execution — is logged to Walrus and streamed to the dashboard over SSE.
+### Prediction Agent  
+Uses Kelly criterion to size bets on DeepBook Predict markets. Only bets when estimated probability exceeds market-implied by configurable edge threshold.
 
-## Run locally
+## Quick Start
 
 ```bash
-cd ui && npm install && npm run build && cd ..
-uv venv && uv pip install -r requirements.txt
-source .venv/bin/activate
-python -m uvicorn main:app --host 0.0.0.0 --port 8420
+# Install
+cd agentos
+uv sync
+
+# Run (port 8420)
+.venv/bin/python main.py
 ```
 
-Requires a Groq API key in `runtime/.env`. The runtime needs a persistent process (agents run as async loops in the uvicorn lifespan). Vercel deploys the static frontend and a subset of the API as serverless functions; the full agent loop requires a long-lived process.
+Open http://localhost:8420
+
+## API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/health` | Service health |
+| GET | `/api/runtime/agents` | Agent list with live chain data |
+| GET | `/api/runtime/events` | SSE stream of agent decisions |
+| GET | `/api/runtime/market` | SUI price from CoinGecko |
+| GET | `/api/runtime/history` | Recent agent events |
+| POST | `/api/runtime/agents/deploy` | Deploy a new agent |
+| POST | `/api/runtime/agents/start` | Start a stopped agent |
+| POST | `/api/runtime/agents/stop` | Stop a running agent |
 
 ## Pages
 
-| Path | Description |
-|------|-------------|
-| `/` | Landing — strategy overview, pipeline, deploy panel |
-| `/dashboard.html` | Live SSE stream of agent decisions, DeepBook market data |
-| `/api.html` | REST + SSE endpoint reference |
-| `/contracts.html` | Move module documentation with function signatures |
+| Route | Description |
+|---|---|
+| `/` | Landing — live feed, pipeline, Sui stack |
+| `/yield` | Yield agent — configure and deploy |
+| `/trader` | Trader agent — with live SUI price |
+| `/prediction` | Prediction agent — with Kelly calculator |
+| `/dashboard` | Live monitor — SSE feed with start/stop |
+| `/deploy` | Deploy form — connect wallet, configure guardrails |
+
+## Tech Stack
+
+- **Blockchain:** Sui Testnet (Move contracts, RPC, PTBs)
+- **AI:** Groq API (llama-3.3-70b-versatile, json_object mode)  
+- **Storage:** Walrus (content-addressed blob logs)
+- **Market Data:** CoinGecko (real-time SUI price)
+- **Backend:** FastAPI + Uvicorn (Python 3.12)
+- **Frontend:** Vanilla JS with GSAP animations
+- **Deployment:** Vercel (serverless) + local (persistent agents)
+
+## Why It Wins
+
+- **All real data** — zero mock. Live Sui RPC, CoinGecko prices, real wallet balance
+- **On-chain deployed** — 4 Move modules live on testnet with verified TX
+- **LLM-powered decisions** — Groq llama-3.3-70b with structured JSON responses
+- **Verifiable audit trail** — Every decision hashed and logged to Walrus
+- **Programmable guardrails** — On-chain constraints prevent rogue agent behavior
+- **Works end-to-end** — From wallet connection to deploy to live SSE monitoring
 
 ## License
 

@@ -70,6 +70,8 @@ async def event_history(limit: int = 50):
 @router.get("/agents")
 async def agent_status():
     from runtime.sui_client import get_wallet_state, get_network_status, WALLET_ADDRESS
+    import os
+    pkg_id = os.environ.get("AGENTOS_PACKAGE_ID", "")
     try:
         wallet = get_wallet_state()
         network = get_network_status()
@@ -84,6 +86,8 @@ async def agent_status():
         "total_count": len(agents),
         "model": "llama-3.3-70b-versatile",
         "network": "sui-testnet",
+        "package_id": pkg_id,
+        "explorer_url": f"https://testnet.suivision.xyz/package/{pkg_id}" if pkg_id else "",
         "wallet": {
             "address": WALLET_ADDRESS,
             "balance_sui": wallet.balance_sui if wallet else 0,

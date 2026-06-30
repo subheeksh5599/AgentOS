@@ -136,50 +136,79 @@
         var walletBtn = document.getElementById("walletBtn");
         var walletAddress = "";
 
-        function findSuiWallet() {
-            if (window.suiWallet && window.suiWallet.features && window.suiWallet.features['standard:connect']) return window.suiWallet;
-            if (window.martian && typeof window.martian.connect === 'function') return window.martian;
-            if (window.suiet && typeof window.suiet.connect === 'function') return window.suiet;
-            for (var key in window) {
-                try { var w = window[key]; if (w && typeof w === 'object' && typeof w.requestAccounts === 'function') return w; } catch(e) {}
+        console.log("[Wallet] Initializing Sui wallet detection...");
+        function log(s) { console.log("[Wallet] " + s); }
+
+        function tryConnectSuiWallet() {
+            if (window.suiWallet) {
+                var w = window.suiWallet;
+                log("Found window.suiWallet, accounts=" + (w.accounts ? w.accounts.length : 0));
+                if (w.features && w.features['standard:connect']) {
+                    log("Using Wallet Standard connect...");
+                    return w.features['standard:connect'].connect().then(function() {
+                        log("Connected, accounts: " + w.accounts.length);
+                        return w.accounts.map(function(a) { return a.address; });
+                    });
+                }
             }
+            if (window.martian) {
+                log("Found window.martian");
+                if (typeof window.martian.connect === 'function') {
+                    return window.martian.connect().then(function(r) { return [r.address]; });
+                }
+            }
+            if (window.suiet) {
+                log("Found window.suiet");
+                if (typeof window.suiet.connect === 'function') {
+                    return window.suiet.connect().then(function(r) { return [r.address]; });
+                }
+            }
+            for (var key in window) {
+                try {
+                    var w = window[key];
+                    if (!w || typeof w !== 'object') continue;
+                    if (typeof w.requestAccounts === 'function') {
+                        log("Found wallet with requestAccounts: window." + key);
+                        return w.requestAccounts();
+                    }
+                } catch(e) {}
+            }
+            try {
+                if (window.__wallet_standard__ && typeof window.__wallet_standard__.get === 'function') {
+                    var wallets = window.__wallet_standard__.get();
+                    log("Wallet Standard registry: " + wallets.length + " wallets");
+                    for (var i = 0; i < wallets.length; i++) {
+                        var ws = wallets[i];
+                        if (ws.features && ws.features['standard:connect']) {
+                            log("Connecting to " + ws.name + "...");
+                            return ws.features['standard:connect'].connect().then(function() {
+                                return ws.accounts.map(function(a) { return a.address; });
+                            });
+                        }
+                    }
+                }
+            } catch(e) { log("Registry error: " + e.message); }
             return null;
         }
 
-        function getAccounts(w) {
-            if (w === window.suiWallet && w.features && w.features['standard:connect']) {
-                return Promise.resolve(w.accounts.map(function(a) { return a.address; }));
-            }
-            if (w === window.martian && typeof w.getAccounts === 'function') return w.getAccounts();
-            if (w === window.suiet && typeof w.getAccounts === 'function') return w.getAccounts();
-            if (typeof w.requestAccounts === 'function') return w.requestAccounts();
-            if (typeof w.getAccounts === 'function') return w.getAccounts();
-            return Promise.resolve([]);
-        }
-
-        function requestAccounts(w) {
-            if (w === window.suiWallet && w.features && w.features['standard:connect']) {
-                return w.features['standard:connect'].connect().then(function() {
-                    return w.accounts.map(function(a) { return a.address; });
-                });
-            }
-            if (w === window.martian && typeof w.connect === 'function') {
-                return w.connect().then(function(r) { return [r.address]; });
-            }
-            if (w === window.suiet && typeof w.connect === 'function') {
-                return w.connect().then(function(r) { return [r.address]; });
-            }
-            if (typeof w.requestAccounts === 'function') return w.requestAccounts();
-            return Promise.reject('No accounts method');
-        }
-
         function toggleWallet() {
+            log("toggleWallet called, walletAddress=" + (walletAddress || "(empty)"));
             if (walletAddress) { disconnect(); return; }
-            var w = findSuiWallet();
-            if (!w) { walletBtn.textContent = "No wallet found"; walletBtn.style.opacity = "0.5"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; walletBtn.style.opacity = "1"; }, 2000); return; }
-            requestAccounts(w).then(function(accounts) {
+            walletBtn.textContent = "Searching...";
+            walletBtn.style.opacity = "0.7";
+            var result = tryConnectSuiWallet();
+            if (!result) {
+                log("No wallet found");
+                walletBtn.textContent = "No wallet found"; walletBtn.style.opacity = "0.5";
+                setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; walletBtn.style.opacity = "1"; }, 2000);
+                return;
+            }
+            result.then(function(accounts) {
+                log("Got accounts: " + JSON.stringify(accounts));
                 if (accounts && accounts.length) { walletAddress = accounts[0]; updateWalletUI(); }
+                else { walletBtn.textContent = "No accounts"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; }, 1500); }
             }).catch(function(err) {
+                log("Connection error: " + (err.message || err));
                 walletBtn.textContent = "Denied"; setTimeout(function(){ walletBtn.textContent = "Connect Wallet"; }, 1500);
             });
         }
@@ -195,17 +224,24 @@
             }
         }
 
-        setTimeout(function() {
-            var w = findSuiWallet();
-            if (w) getAccounts(w).then(function(acc) {
-                if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
-            }).catch(function() {});
-        }, 800);
+        function autoDetect() {
+            log("Running auto-detect...");
+            if (window.suiWallet && window.suiWallet.accounts && window.suiWallet.accounts.length > 0) {
+                walletAddress = window.suiWallet.accounts[0].address;
+                log("Auto-detected SuiWallet: " + walletAddress); updateWalletUI(); return;
+            }
+            if (window.martian && typeof window.martian.getAccounts === 'function') {
+                window.martian.getAccounts().then(function(acc) {
+                    if (acc && acc.length) { walletAddress = acc[0]; log("Auto-detected Martian: " + walletAddress); updateWalletUI(); }
+                }).catch(function(){}); return;
+            }
+            log("No pre-connected wallet found");
+        }
+        setTimeout(autoDetect, 500);
+        setTimeout(autoDetect, 1500);
+        setTimeout(autoDetect, 3000);
         window.addEventListener('wallet-standard:app-ready', function() {
-            var w = findSuiWallet();
-            if (w) getAccounts(w).then(function(acc) {
-                if (acc && acc.length) { walletAddress = acc[0]; updateWalletUI(); }
-            }).catch(function() {});
+            log("wallet-standard:app-ready fired"); autoDetect();
         });
 
         // Preview update

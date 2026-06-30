@@ -4,176 +4,309 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard — AgentOS</title>
-    <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        :root { --bg: #0F0D0A; --accent: #E63A1B; --text: #EFEAE3; --muted: #6A6358; --line: rgba(232,226,209,0.08); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', -apple-system, sans-serif; min-height: 100vh; }
+        :root {
+            --bg: #0F0D0A; --surface: #161310; --accent: #E63A1B;
+            --text: #E8E2D1; --muted: #6A6358;
+            --line: rgba(232,226,209,0.06);
+            --green: #10B981; --blue: #3B82F6; --amber: #F59E0B;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh; -webkit-font-smoothing: antialiased;
+        }
         a { color: inherit; text-decoration: none; }
 
-        nav { padding: 20px 4vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
-        .nav-l { font-weight: 900; font-size: 20px; }
-        .nav-l span { color: var(--accent); }
-        .nav-r { display: flex; gap: 24px; align-items: center; font-size: 13px; }
-        .nav-r a { color: var(--muted); }
-        .nav-r a:hover { color: var(--text); }
-
-        main { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
-
-        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 16px; margin-bottom: 32px; }
-        .stat-card { background: var(--line); border-radius: 12px; padding: 18px; text-align: center; }
-        .stat-card .val { font-size: 32px; font-weight: 900; color: var(--accent); }
-        .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 4px; }
-
-        .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin: 32px 0 16px; }
-
-        .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px; }
-        .agent-card { background: rgba(232,226,209,0.04); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
-        .agent-card .ac-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; }
-        .agent-card .ac-name { font-weight: 700; font-size: 16px; }
-        .agent-card .ac-type { font-size: 10px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; color: #fff; }
-        .ac-type.yield { background: #10B981; }
-        .ac-type.trader { background: #E63A1B; }
-        .ac-type.prediction { background: #3B82F6; }
-        .agent-card .ac-meta { font-size: 12px; color: var(--muted); line-height: 1.7; }
-        .agent-card .ac-meta span { color: var(--text); }
-        .agent-card .ac-actions { margin-top: 14px; display: flex; gap: 8px; }
-        .agent-card .ac-actions button {
-            padding: 6px 14px; border-radius: 8px; border: 1px solid var(--line); background: transparent;
-            color: var(--text); font-size: 11px; cursor: pointer; font-family: inherit;
-            transition: all 0.2s;
+        nav {
+            position: sticky; top:0; z-index: 100;
+            padding: 0 4vw; height: 64px; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--line);
+            background: rgba(15,13,10,0.85); backdrop-filter: blur(12px);
         }
-        .agent-card .ac-actions button:hover { border-color: var(--accent); color: var(--accent); }
-        .agent-card .ac-actions button.stop-btn:hover { border-color: #ef4444; color: #ef4444; }
+        .nav-l { font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
+        .nav-l span { color: var(--accent); }
+        .nav-r { display: flex; gap: 28px; align-items: center; font-size: 12px; font-weight: 500; letter-spacing: 0.03em; }
+        .nav-r a { color: var(--muted); transition: color 0.2s; }
+        .nav-r a:hover, .nav-r a.active { color: var(--text); }
+        .nav-r a.active::after { content:''; display: block; height: 1px; background: var(--accent); margin-top: 2px; }
 
-        .event-list { display: flex; flex-direction: column; gap: 8px; max-height: 500px; overflow-y: auto; }
-        .event-row { display: grid; grid-template-columns: 120px 80px 1fr 100px; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; }
-        @media(max-width:700px) { .event-row { grid-template-columns: 70px 50px 1fr; } .event-row .ev-time { display: none; } }
-        .ev-agent { font-weight: 600; color: var(--accent); }
-        .ev-type { font-size: 10px; padding: 2px 6px; border-radius: 3px; text-align: center; }
-        .ev-summary { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ev-time { color: var(--muted); font-size: 11px; text-align: right; }
+        main { max-width: 1160px; margin: 0 auto; padding: 48px 24px 80px; }
 
-        .empty-msg { text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
+        .header-row {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 40px; flex-wrap: wrap; gap: 20px;
+        }
+        .header-left h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+        .header-left h1 span { color: var(--accent); }
+        .header-left .chain-info { font-size: 12px; color: var(--muted); margin-top: 8px; letter-spacing: 0.04em; }
+        .header-left .chain-info strong { color: var(--text); font-weight: 600; }
 
-        .refresh-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .refresh-bar .dot-live { width: 6px; height: 6px; border-radius: 50%; background: #10B981; animation: blink 1.5s infinite; display: inline-block; margin-right: 6px; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .refresh-bar span { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+        .header-right { display: flex; gap: 28px; text-align: right; }
+        .metric .metric-val { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+        .metric .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 2px; }
+
+        .live-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+        .section-head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 28px 0 16px;
+            border-bottom: 1px solid var(--line); margin-bottom: 20px;
+        }
+        .section-head h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+        .section-head .count { font-size: 11px; color: var(--muted); }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 48px; }
+        @media(max-width:700px) { .card-grid { grid-template-columns: 1fr; } .header-right { gap: 16px; } .metric .metric-val { font-size: 18px; } }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 14px; padding: 22px;
+            transition: border-color 0.2s;
+        }
+        .card:hover { border-color: rgba(232,226,209,0.14); }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .card-name { font-size: 17px; font-weight: 700; }
+        .card-badge {
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; padding: 3px 10px; border-radius: 4px; color: #000;
+        }
+        .badge-yield { background: var(--green); }
+        .badge-trader { background: var(--accent); }
+        .badge-prediction { background: var(--blue); }
+
+        .card-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-bottom: 16px; }
+        .card-info .kv { font-size: 11px; }
+        .card-info .kv .k { color: var(--muted); }
+        .card-info .kv .v { color: var(--text); font-weight: 500; }
+        .card-info .kv .v.g { color: var(--green); }
+        .card-info .kv .v.r { color: #ef4444; }
+
+        .card-guardrails { font-size: 10px; color: var(--muted); letter-spacing: 0.03em; line-height: 1.6; padding-top: 10px; border-top: 1px solid var(--line); }
+        .card-guardrails span { color: var(--text); font-weight: 500; }
+
+        .card-actions { margin-top: 14px; display: flex; gap: 8px; }
+        .btn {
+            padding: 7px 16px; border-radius: 8px; font-size: 11px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--line); background: transparent;
+            color: var(--muted); font-family: inherit; transition: all 0.2s;
+        }
+        .btn:hover { border-color: var(--text); color: var(--text); }
+        .btn.danger:hover { border-color: #ef4444; color: #ef4444; }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn.primary:hover { opacity: 0.85; }
+
+        .tx-link {
+            font-size: 10px; font-family: monospace; color: var(--blue);
+            display: inline-flex; align-items: center; gap: 4px; margin-top: 8px;
+        }
+        .tx-link:hover { text-decoration: underline; }
+
+        .event-feed { display: flex; flex-direction: column; gap: 6px; }
+        .event {
+            display: grid; grid-template-columns: 100px 48px 1fr auto;
+            gap: 12px; align-items: center; padding: 10px 14px;
+            border-radius: 8px; font-size: 12px;
+            border-left: 2px solid transparent;
+        }
+        @media(max-width:700px) { .event { grid-template-columns: 60px 36px 1fr; } .event .ev-time { display: none; } }
+        .event:hover { background: rgba(232,226,209,0.02); }
+        .event.severity-txn { border-left-color: var(--green); }
+        .event.severity-decision { border-left-color: var(--muted); }
+        .ev-name { font-weight: 600; font-size: 11px; }
+        .ev-kind { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 5px; border-radius: 3px; text-align: center; }
+        .ek-txn { background: rgba(16,185,129,0.15); color: var(--green); }
+        .ek-decision { background: rgba(232,226,209,0.08); color: var(--muted); }
+        .ek-startup { background: rgba(59,130,246,0.12); color: var(--blue); }
+        .ek-error { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .ev-desc { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ev-time { color: var(--muted); font-size: 10px; white-space: nowrap; }
+
+        .empty { text-align: center; color: var(--muted); padding: 48px 20px; font-size: 13px; letter-spacing: 0.03em; }
+        .empty a { color: var(--accent); }
     </style>
 </head>
 <body>
     <nav>
-        <a href="index.html" class="nav-l">Agent<span>OS</span> Dashboard</a>
+        <a href="/" class="nav-l">Agent<span>OS</span></a>
         <div class="nav-r">
-            <a href="index.html">Home</a>
-            <a href="deploy.html">Deploy</a>
-            <a href="dashboard.html" style="color:var(--accent)">Dashboard</a>
+            <a href="/">Home</a>
+            <a href="/yield">Yield</a>
+            <a href="/trader">Trader</a>
+            <a href="/prediction">Prediction</a>
+            <a href="/deploy">Deploy</a>
+            <a href="/dashboard" class="active">Dashboard</a>
         </div>
     </nav>
 
     <main>
-        <div class="stats-row">
-            <div class="stat-card"><div class="val" id="statRunning">3</div><div class="label">Agents Running</div></div>
-            <div class="stat-card"><div class="val" id="statTotal">3</div><div class="label">Total Deployed</div></div>
-            <div class="stat-card"><div class="val" id="statEvents">0</div><div class="label">Events Today</div></div>
-            <div class="stat-card"><div class="val" class="val" style="color:#10B981" id="statNetwork">Sui</div><div class="label">Network</div></div>
+        <div class="header-row">
+            <div class="header-left">
+                <h1>Agent <span>Dashboard</span></h1>
+                <div class="chain-info" id="chainInfo">Loading chain data&hellip;</div>
+            </div>
+            <div class="header-right">
+                <div class="metric">
+                    <div class="metric-val" id="mBalance">—</div>
+                    <div class="metric-label">Wallet Balance</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-val" id="mPrice">—</div>
+                    <div class="metric-label">SUI / USD</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-val" id="mAgents">—</div>
+                    <div class="metric-label">Agents</div>
+                </div>
+            </div>
         </div>
 
-        <div class="refresh-bar"><span><span class="dot-live"></span>Live — auto-refreshing</span><span>SSE Stream Active</span></div>
+        <div class="section-head">
+            <h2><span class="live-dot"></span>Deployed Agents</h2>
+            <span class="count" id="agentCount"></span>
+        </div>
+        <div class="card-grid" id="agentGrid"></div>
 
-        <div class="section-title">Running Agents</div>
-        <div class="agent-grid" id="agentGrid"><div class="empty-msg">Loading agents...</div></div>
-
-        <div class="section-title">Live Events</div>
-        <div class="event-list" id="eventList"><div class="empty-msg">Connecting to SSE stream...</div></div>
+        <div class="section-head">
+            <h2>Event Feed</h2>
+            <a href="/api/runtime/events" class="count" style="text-decoration:underline">SSE stream</a>
+        </div>
+        <div class="event-feed" id="eventFeed"></div>
     </main>
 
     <script>
-        var API = window.location.origin;
-        var eventCount = 0;
+        var API = origin;
+        var evCount = 0;
 
-        function updateStats(running, total) {
-            document.getElementById("statRunning").textContent = running;
-            document.getElementById("statTotal").textContent = total;
-            document.getElementById("statEvents").textContent = eventCount;
+        function formatGuardrails(g, type) {
+            var parts = [];
+            if (type === "yield") {
+                if (g.max_tx_sui) parts.push("max "+g.max_tx_sui+" SUI");
+                if (g.min_apr_threshold_pct) parts.push("min apr "+g.min_apr_threshold_pct+"%");
+                if (g.max_single_pool_pct) parts.push("cap "+g.max_single_pool_pct+"% per pool");
+            } else if (type === "trader") {
+                if (g.max_tx_sui) parts.push("max "+g.max_tx_sui+" SUI");
+                if (g.stop_loss_pct) parts.push("stop-loss "+g.stop_loss_pct+"%");
+                if (g.min_profit_pct) parts.push("min profit "+g.min_profit_pct+"%");
+            } else {
+                if (g.max_bet_sui) parts.push("max bet "+g.max_bet_sui+" SUI");
+                if (g.min_confidence_pct) parts.push("min conf "+g.min_confidence_pct+"%");
+            }
+            return parts.join("<br>") || "default";
         }
 
         function renderAgents(agents) {
             var grid = document.getElementById("agentGrid");
-            if (!agents || !agents.length) { grid.innerHTML = '<div class="empty-msg">No agents deployed. <a href="deploy.html">Deploy one &rarr;</a></div>'; return; }
+            var count = document.getElementById("agentCount");
+            if (!agents || !agents.length) {
+                grid.innerHTML = '<div class="empty">No agents deployed yet. <a href="/deploy">Deploy one →</a></div>';
+                count.textContent = "0 agents";
+                document.getElementById("mAgents").textContent = "0";
+                return;
+            }
             var running = 0;
             var h = "";
             agents.forEach(function(a) {
                 if (a.running) running++;
-                var color = a.type === "yield" ? "#10B981" : a.type === "trader" ? "#E63A1B" : "#3B82F6";
-                h += '<div class="agent-card">';
-                h += '<div class="ac-header"><span class="ac-name">' + a.name + '</span><span class="ac-type ' + a.type + '">' + a.type + '</span></div>';
-                h += '<div class="ac-meta">ID: <span>' + a.id + '</span><br>Interval: <span>' + a.interval_seconds + 's</span><br>';
-                h += 'Status: <span style="color:' + (a.running ? '#10B981' : '#ef4444') + '">' + (a.running ? 'Running' : 'Stopped') + '</span>';
-                if (a.wallet_address && a.wallet_address.length > 0) h += '<br>Wallet: <span>' + a.wallet_address.substring(0,10) + '...</span>';
+                var badgeClass = a.type === "yield" ? "badge-yield" : a.type === "trader" ? "badge-trader" : "badge-prediction";
+                h += '<div class="card">';
+                h += '<div class="card-top"><span class="card-name">' + a.name + '</span><span class="card-badge ' + badgeClass + '">' + a.type + '</span></div>';
+                h += '<div class="card-info">';
+                h += '<div class="kv"><span class="k">Status</span><br><span class="v ' + (a.running ? 'g' : 'r') + '">' + (a.running ? 'Running' : 'Stopped') + '</span></div>';
+                h += '<div class="kv"><span class="k">Interval</span><br><span class="v">' + a.interval_seconds + 's</span></div>';
+                if (a.deploy_digest) h += '<div class="kv"><span class="k">Deploy TX</span><br><a class="tx-link" target="_blank" href="https://testnet.suivision.xyz/txblock/' + a.deploy_digest + '">' + a.deploy_digest.substring(0,10) + '&hellip; ↗</a></div>';
+                if (a.wallet_obj_id) h += '<div class="kv"><span class="k">Wallet Object</span><br><a class="tx-link" target="_blank" href="https://testnet.suivision.xyz/object/' + a.wallet_obj_id + '">' + a.wallet_obj_id.substring(0,10) + '&hellip; ↗</a></div>';
+                if (!a.deploy_digest) h += '<div class="kv"><span class="k">ID</span><br><span class="v">' + a.id + '</span></div>';
+                if (a.last_tx_digest) h += '<div class="kv"><span class="k">Last TX</span><br><a class="tx-link" target="_blank" href="https://testnet.suivision.xyz/txblock/' + a.last_tx_digest + '">' + a.last_tx_digest.substring(0,10) + '&hellip; ↗</a></div>';
                 h += '</div>';
-                h += '<div class="ac-actions">';
+                h += '<div class="card-guardrails">' + formatGuardrails(a.guardrails, a.type) + '</div>';
+                h += '<div class="card-actions">';
                 if (a.running) {
-                    h += '<button class="stop-btn" onclick="stopAgent(\'' + a.id + '\')">Stop</button>';
+                    h += '<button class="btn danger" onclick="stop(\'' + a.id + '\')">Stop</button>';
                 } else {
-                    h += '<button onclick="startAgent(\'' + a.id + '\')">Start</button>';
+                    h += '<button class="btn primary" onclick="start(\'' + a.id + '\')">Start</button>';
                 }
                 h += '</div></div>';
             });
             grid.innerHTML = h;
-            updateStats(running, agents.length);
+            count.textContent = running + " running / " + agents.length + " total";
+            document.getElementById("mAgents").textContent = running;
         }
 
-        function addEvent(ev) {
+        function severityClass(type) {
+            if (type === "txn" || type === "guardrail_hit") return "severity-txn";
+            return "severity-decision";
+        }
+        function kindClass(type) {
+            if (type === "txn") return "ek-txn";
+            if (type === "decision") return "ek-decision";
+            if (type === "startup") return "ek-startup";
+            if (type === "error") return "ek-error";
+            return "ek-decision";
+        }
+
+        function pushEvent(ev) {
             if (!ev || !ev.agent_type || ev.event_type === "heartbeat") return;
-            eventCount++;
-            document.getElementById("statEvents").textContent = eventCount;
-            var list = document.getElementById("eventList");
-            var colorMap = {"yield":"#10B981","trader":"#E63A1B","prediction":"#3B82F6"};
-            var row = document.createElement("div");
-            row.className = "event-row";
-            var t = new Date(ev.timestamp);
-            var ts = t.toLocaleTimeString("en-US", {hour12:false, hour:"2-digit", minute:"2-digit", second:"2-digit"});
-            row.innerHTML =
-                '<span class="ev-agent">' + (ev.agent_name || ev.agent_type) + '</span>' +
-                '<span class="ev-type" style="background:' + (colorMap[ev.agent_type] || "#666") + ';color:#fff">' + (ev.event_type || "") + '</span>' +
-                '<span class="ev-summary" title="' + (ev.summary || "") + '">' + (ev.summary || "—") + '</span>' +
+            evCount++;
+            var feed = document.getElementById("eventFeed");
+            var div = document.createElement("div");
+            div.className = "event " + severityClass(ev.event_type);
+            var ts = new Date(ev.timestamp).toLocaleTimeString("en-US", {hour12:false, hour:"2-digit", minute:"2-digit", second:"2-digit"});
+            div.innerHTML =
+                '<span class="ev-name">' + (ev.agent_name || ev.agent_type) + '</span>' +
+                '<span class="ev-kind ' + kindClass(ev.event_type) + '">' + (ev.event_type || "") + '</span>' +
+                '<span class="ev-desc" title="' + (ev.summary || "") + '">' + (ev.summary || "—") + '</span>' +
                 '<span class="ev-time">' + ts + '</span>';
-            list.insertBefore(row, list.firstChild);
-            if (list.children.length > 50) { for (var i = 50; i < list.children.length; i++) list.removeChild(list.children[i]); }
+            feed.insertBefore(div, feed.firstChild);
+            while (feed.children.length > 80) feed.lastChild.remove();
         }
 
-        function startAgent(id) {
+        function start(id) {
             fetch(API + "/api/runtime/agents/start", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({agent_id: id})})
-                .then(function() { fetchAgents(); });
+                .then(function(){ load(); });
         }
-
-        function stopAgent(id) {
+        function stop(id) {
             fetch(API + "/api/runtime/agents/stop", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({agent_id: id})})
-                .then(function() { fetchAgents(); });
+                .then(function(){ load(); });
         }
 
-        function fetchAgents() {
+        function load() {
             fetch(API + "/api/runtime/agents")
-                .then(function(r) { return r.json(); })
-                .then(function(d) { renderAgents(d.agents); })
-                .catch(function() {});
+                .then(function(r){ return r.json(); })
+                .then(function(d) {
+                    renderAgents(d.agents);
+                    document.getElementById("chainInfo").innerHTML =
+                        "Epoch <strong>" + (d.chain ? d.chain.epoch : "—") + "</strong> · " +
+                        (d.chain ? d.chain.total_txns.toLocaleString() : "—") + " transactions · " +
+                        "Wallet <strong>" + (d.wallet ? d.wallet.balance_sui.toFixed(4) : "—") + " SUI</strong>";
+                    document.getElementById("mBalance").textContent = (d.wallet ? d.wallet.balance_sui.toFixed(2) : "—") + " SUI";
+                })
+                .catch(function(e) { document.getElementById("chainInfo").textContent = "Offline — run locally"; });
+            fetch(API + "/api/runtime/market")
+                .then(function(r){ return r.json(); })
+                .then(function(d) {
+                    var p = d.sui_price_usd || 0.69;
+                    document.getElementById("mPrice").textContent = "$" + p.toFixed(4);
+                })
+                .catch(function(){ document.getElementById("mPrice").textContent = "$0.69"; });
         }
 
         function connectSSE() {
             try {
                 var sse = new EventSource(API + "/api/runtime/events");
                 sse.onmessage = function(e) {
-                    try { var ev = JSON.parse(e.data); addEvent(ev); } catch(_) {}
+                    try { pushEvent(JSON.parse(e.data)); } catch(_) {}
                 };
-                sse.onerror = function() { sse.close(); setTimeout(connectSSE, 5000); };
-            } catch(_) { setTimeout(connectSSE, 3000); }
+                sse.onerror = function() { sse.close(); setTimeout(connectSSE, 6000); };
+            } catch(_) { setTimeout(connectSSE, 4000); }
         }
 
-        fetchAgents();
+        load();
         connectSSE();
-        setInterval(fetchAgents, 15000);
+        setInterval(load, 20000);
     </script>
 </body>
 </html>

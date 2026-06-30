@@ -147,11 +147,15 @@
             <div class="header-left">
                 <h1>Agent <span>Dashboard</span></h1>
                 <div class="chain-info" id="chainInfo">Loading chain data&hellip;</div>
+                <div class="chain-info" style="margin-top:4px;font-size:11px">
+                    Agent wallet <a id="walletLink" target="_blank" style="color:var(--blue);font-family:monospace;font-size:10px">0xfc75...503c ↗</a>
+                    &nbsp;|&nbsp; Your wallet <span id="userWallet" style="color:var(--muted)">not connected</span>
+                </div>
             </div>
             <div class="header-right">
                 <div class="metric">
                     <div class="metric-val" id="mBalance">—</div>
-                    <div class="metric-label">Wallet Balance</div>
+                    <div class="metric-label" id="mBalanceLabel">Agent Wallet</div>
                 </div>
                 <div class="metric">
                     <div class="metric-val" id="mPrice">—</div>
@@ -180,6 +184,31 @@
     <script>
         var API = origin;
         var evCount = 0;
+        var userWallet = "";
+
+        // Wallet connect
+        setInterval(function() {
+            if (window.suiWallet) {
+                window.suiWallet.getAccounts().then(function(a) {
+                    if (a && a.length) {
+                        userWallet = a[0];
+                        document.getElementById("userWallet").innerHTML =
+                            '<a target="_blank" style="color:var(--green);font-family:monospace;font-size:10px" href="https://testnet.suivision.xyz/address/' + userWallet + '">' +
+                            userWallet.substring(0,6) + '...' + userWallet.slice(-4) + ' ↗</a>';
+                    }
+                }).catch(function(){});
+            }
+        }, 3000);
+
+        function requestWallet() {
+            if (window.suiWallet) {
+                window.suiWallet.requestAccounts().then(function(a) {
+                    if (a && a.length) { userWallet = a[0]; }
+                }).catch(function() { alert("Install Sui Wallet extension from chrome web store."); });
+            } else {
+                alert("No Sui Wallet detected. Install Sui Wallet browser extension to connect.\n\nThe dashboard shows the agent's backend wallet — separate from your own.");
+            }
+        }
 
         function formatGuardrails(g, type) {
             var parts = [];
@@ -281,8 +310,13 @@
                     document.getElementById("chainInfo").innerHTML =
                         "Epoch <strong>" + (d.chain ? d.chain.epoch : "—") + "</strong> · " +
                         (d.chain ? d.chain.total_txns.toLocaleString() : "—") + " transactions · " +
-                        "Wallet <strong>" + (d.wallet ? d.wallet.balance_sui.toFixed(4) : "—") + " SUI</strong>";
+                        "Package <a target='_blank' style='color:var(--blue);font-family:monospace;font-size:10px' href='" + (d.explorer_url || "#") + "'>" + (d.package_id || "").substring(0,10) + "&hellip; ↗</a>";
                     document.getElementById("mBalance").textContent = (d.wallet ? d.wallet.balance_sui.toFixed(2) : "—") + " SUI";
+                    document.getElementById("mBalanceLabel").textContent = "Agent Wallet";
+                    if (d.wallet && d.wallet.address) {
+                        document.getElementById("walletLink").href = "https://testnet.suivision.xyz/address/" + d.wallet.address;
+                        document.getElementById("walletLink").textContent = d.wallet.address.substring(0,10) + "... ↗";
+                    }
                 })
                 .catch(function(e) { document.getElementById("chainInfo").textContent = "Offline — run locally"; });
             fetch(API + "/api/runtime/market")

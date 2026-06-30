@@ -101,7 +101,7 @@
                     ch.style.color = delta >= 0 ? "#10B981" : "#ef4444";
                 } catch (e) { document.getElementById("suiPrice").textContent = "$—"; }
                 var items = [
-                    ["Balance", d.wallet ? d.wallet.balance_sui.toFixed(4) + " SUI" : "—", "", "green"],
+                    ["Balance (Agent Wallet)", d.wallet ? d.wallet.balance_sui.toFixed(4) + " SUI" : "—", "" + (d.wallet && d.wallet.address ? d.wallet.address.substring(0,10)+"..." : ""), "green"],
                     ["Epoch", d.chain ? d.chain.epoch : "—", d.chain ? d.chain.total_txns.toLocaleString() + " txns" : "", ""],
                     ["Model", d.model || "llama-3.3-70b", "Groq JSON mode", ""]];
                 items.forEach(function(i) {

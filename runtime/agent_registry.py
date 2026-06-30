@@ -15,7 +15,13 @@ class AgentConfig:
     interval_seconds: int
     wallet_address: str = ""
     created_at: str = ""
-    status: str = "stopped"  # "running", "stopped", "error"
+    status: str = "stopped"
+    # On-chain state
+    wallet_obj_id: str = ""      # AgentWallet object on testnet
+    cap_obj_id: str = ""         # AgentWalletCap object
+    registry_obj_id: str = ""    # AgentEntry object
+    deploy_digest: str = ""      # Factory deploy TX digest
+    last_tx_digest: str = ""     # Most recent agent TX
 
     def to_dict(self):
         return {
@@ -27,6 +33,11 @@ class AgentConfig:
             "wallet_address": self.wallet_address,
             "created_at": self.created_at,
             "status": self.status,
+            "wallet_obj_id": self.wallet_obj_id,
+            "cap_obj_id": self.cap_obj_id,
+            "registry_obj_id": self.registry_obj_id,
+            "deploy_digest": self.deploy_digest,
+            "last_tx_digest": self.last_tx_digest,
         }
 
 

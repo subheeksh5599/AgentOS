@@ -145,6 +145,17 @@ async def deploy_agent(req: DeployRequest):
         created_at=datetime.now(timezone.utc).isoformat(),
     )
 
+    # Deploy on-chain via Move factory contract
+    try:
+        from runtime.onchain import factory_deploy
+        result = factory_deploy(config.name, config.agent_type, config.guardrails)
+        config.deploy_digest = result.get("digest", "")
+        config.wallet_obj_id = result.get("wallet_obj_id", "")
+        config.cap_obj_id = result.get("cap_obj_id", "")
+        config.registry_obj_id = result.get("registry_obj_id", "")
+    except Exception:
+        pass  # on-chain deploy is best-effort; agent runs either way
+
     agent_id = registry.register(config)
     await registry.start(agent_id)
 
